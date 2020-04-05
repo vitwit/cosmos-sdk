@@ -1,13 +1,12 @@
 <!--
 order: 7
-synopsis: "`Event`s are objects that contain information about the execution of the application.
-They are mainly used by service providers like block explorers and wallet to track the execution of
-various messages and index transactions."
 -->
 
 # Events
 
-## Pre-Requisite Readings {hide}
+`Event`s are objects that contain information about the execution of the application. They are mainly used by service providers like block explorers and wallet to track the execution of various messages and index transactions. {synopsis}
+
+## Pre-requisite Readings
 
 - [Anatomy of an SDK application](../basics/app-anatomy.md) {prereq}
 
@@ -16,7 +15,7 @@ various messages and index transactions."
 Events are implemented in the Cosmos SDK as an alias of the ABCI `Event` type and
 take the form of: `{eventType}.{eventAttribute}={value}`.
 
-+++ https://github.com/tendermint/tendermint/blob/bc572217c07b90ad9cee851f193aaa8e9557cbc7/abci/types/types.pb.go#L2661-L2667
++++ https://github.com/tendermint/tendermint/blob/bc572217c07b90ad9cee851f193aaa8e9557cbc7/abci/types/types.pb.go#L2187-L2193
 
 Events contain:
 

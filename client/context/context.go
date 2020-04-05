@@ -7,15 +7,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v2"
-
 	"github.com/tendermint/tendermint/libs/cli"
 	tmlite "github.com/tendermint/tendermint/lite"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -25,7 +24,8 @@ type CLIContext struct {
 	FromAddress   sdk.AccAddress
 	Client        rpcclient.Client
 	ChainID       string
-	Keybase       keys.Keybase
+	Marshaler     codec.Marshaler
+	Keybase       keyring.Keybase
 	Input         io.Reader
 	Output        io.Writer
 	OutputFormat  string
@@ -36,13 +36,16 @@ type CLIContext struct {
 	BroadcastMode string
 	Verifier      tmlite.Verifier
 	FromName      string
-	Codec         *codec.Codec
 	TrustNode     bool
 	UseLedger     bool
 	Simulate      bool
 	GenerateOnly  bool
+	Offline       bool
 	Indent        bool
 	SkipConfirm   bool
+
+	// TODO: Deprecated (remove).
+	Codec *codec.Codec
 }
 
 // NewCLIContextWithInputAndFrom returns a new initialized CLIContext with parameters from the
@@ -62,7 +65,8 @@ func NewCLIContextWithInputAndFrom(input io.Reader, from string) CLIContext {
 		os.Exit(1)
 	}
 
-	if !genOnly {
+	offline := viper.GetBool(flags.FlagOffline)
+	if !offline {
 		nodeURI = viper.GetString(flags.FlagNode)
 		if nodeURI != "" {
 			rpc, err = rpcclient.NewHTTP(nodeURI, "/websocket")
@@ -88,6 +92,7 @@ func NewCLIContextWithInputAndFrom(input io.Reader, from string) CLIContext {
 		BroadcastMode: viper.GetString(flags.FlagBroadcastMode),
 		Simulate:      viper.GetBool(flags.FlagDryRun),
 		GenerateOnly:  genOnly,
+		Offline:       offline,
 		FromAddress:   fromAddress,
 		FromName:      fromName,
 		Indent:        viper.GetBool(flags.FlagIndentResponse),
@@ -130,7 +135,14 @@ func (ctx CLIContext) WithInput(r io.Reader) CLIContext {
 	return ctx
 }
 
+// WithMarshaler returns a copy of the CLIContext with an updated Marshaler.
+func (ctx CLIContext) WithMarshaler(m codec.Marshaler) CLIContext {
+	ctx.Marshaler = m
+	return ctx
+}
+
 // WithCodec returns a copy of the context with an updated codec.
+// TODO: Deprecated (remove).
 func (ctx CLIContext) WithCodec(cdc *codec.Codec) CLIContext {
 	ctx.Codec = cdc
 	return ctx
@@ -228,9 +240,44 @@ func (ctx CLIContext) WithBroadcastMode(mode string) CLIContext {
 	return ctx
 }
 
+// Println outputs toPrint to the ctx.Output based on ctx.OutputFormat which is
+// either text or json. If text, toPrint will be YAML encoded. Otherwise, toPrint
+// will be JSON encoded using ctx.Marshaler. An error is returned upon failure.
+func (ctx CLIContext) Println(toPrint interface{}) error {
+	var (
+		out []byte
+		err error
+	)
+
+	switch ctx.OutputFormat {
+	case "text":
+		out, err = yaml.Marshal(&toPrint)
+
+	case "json":
+		out, err = ctx.Marshaler.MarshalJSON(toPrint)
+
+		// To JSON indent, we re-encode the already encoded JSON given there is no
+		// error. The re-encoded JSON uses the standard library as the initial encoded
+		// JSON should have the correct output produced by ctx.Marshaler.
+		if ctx.Indent && err == nil {
+			out, err = codec.MarshalIndentFromJSON(out)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintf(ctx.Output, "%s\n", out)
+	return err
+}
+
 // PrintOutput prints output while respecting output and indent flags
 // NOTE: pass in marshalled structs that have been unmarshaled
-// because this function will panic on marshaling errors
+// because this function will panic on marshaling errors.
+//
+// TODO: Remove once client-side Protobuf migration has been completed.
+// ref: https://github.com/cosmos/cosmos-sdk/issues/5864
 func (ctx CLIContext) PrintOutput(toPrint interface{}) error {
 	var (
 		out []byte
@@ -268,19 +315,19 @@ func GetFromFields(input io.Reader, from string, genOnly bool) (sdk.AccAddress, 
 	if genOnly {
 		addr, err := sdk.AccAddressFromBech32(from)
 		if err != nil {
-			return nil, "", errors.Wrap(err, "must provide a valid Bech32 address for generate-only")
+			return nil, "", errors.Wrap(err, "must provide a valid Bech32 address in generate-only mode")
 		}
 
 		return addr, "", nil
 	}
 
-	keybase, err := keys.NewKeyring(sdk.KeyringServiceName(),
+	keybase, err := keyring.NewKeyring(sdk.KeyringServiceName(),
 		viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), input)
 	if err != nil {
 		return nil, "", err
 	}
 
-	var info keys.Info
+	var info keyring.Info
 	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
 		info, err = keybase.GetByAddress(addr)
 		if err != nil {

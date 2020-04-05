@@ -3,11 +3,13 @@
 package rest
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,7 +21,23 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestBaseReqValidateBasic(t *testing.T) {
+func TestBaseReq_Sanitize(t *testing.T) {
+	t.Parallel()
+	sanitized := BaseReq{ChainID: "   test",
+		Memo:          "memo     ",
+		From:          " cosmos1cq0sxam6x4l0sv9yz3a2vlqhdhvt2k6jtgcse0 ",
+		Gas:           " ",
+		GasAdjustment: "  0.3",
+	}.Sanitize()
+	require.Equal(t, BaseReq{ChainID: "test",
+		Memo:          "memo",
+		From:          "cosmos1cq0sxam6x4l0sv9yz3a2vlqhdhvt2k6jtgcse0",
+		Gas:           "",
+		GasAdjustment: "0.3",
+	}, sanitized)
+}
+
+func TestBaseReq_ValidateBasic(t *testing.T) {
 	fromAddr := "cosmos1cq0sxam6x4l0sv9yz3a2vlqhdhvt2k6jtgcse0"
 	tenstakes, err := types.ParseCoins("10stake")
 	require.NoError(t, err)
@@ -63,6 +81,7 @@ func TestBaseReqValidateBasic(t *testing.T) {
 }
 
 func TestParseHTTPArgs(t *testing.T) {
+	t.Parallel()
 	req0 := mustNewRequest(t, "", "/", nil)
 	req1 := mustNewRequest(t, "", "/?limit=5", nil)
 	req2 := mustNewRequest(t, "", "/?page=5", nil)
@@ -114,6 +133,7 @@ func TestParseHTTPArgs(t *testing.T) {
 }
 
 func TestParseQueryHeight(t *testing.T) {
+	t.Parallel()
 	var emptyHeight int64
 	height := int64(1256756)
 
@@ -155,6 +175,7 @@ func TestProcessPostResponse(t *testing.T) {
 	// PubKey field ensures amino encoding is used first since standard
 	// JSON encoding will panic on crypto.PubKey
 
+	t.Parallel()
 	type mockAccount struct {
 		Address       types.AccAddress `json:"address"`
 		Coins         types.Coins      `json:"coins"`
@@ -183,13 +204,12 @@ func TestProcessPostResponse(t *testing.T) {
 	// setup expected results
 	jsonNoIndent, err := ctx.Codec.MarshalJSON(acc)
 	require.Nil(t, err)
-	jsonWithIndent, err := ctx.Codec.MarshalJSONIndent(acc, "", "  ")
-	require.Nil(t, err)
+
 	respNoIndent := NewResponseWithHeight(height, jsonNoIndent)
-	respWithIndent := NewResponseWithHeight(height, jsonWithIndent)
 	expectedNoIndent, err := ctx.Codec.MarshalJSON(respNoIndent)
 	require.Nil(t, err)
-	expectedWithIndent, err := ctx.Codec.MarshalJSONIndent(respWithIndent, "", "  ")
+
+	expectedWithIndent, err := codec.MarshalIndentFromJSON(expectedNoIndent)
 	require.Nil(t, err)
 
 	// check that negative height writes an error
@@ -201,8 +221,173 @@ func TestProcessPostResponse(t *testing.T) {
 	// check that height returns expected response
 	ctx = ctx.WithHeight(height)
 	runPostProcessResponse(t, ctx, acc, expectedNoIndent, false)
+
 	// check height with indent
 	runPostProcessResponse(t, ctx, acc, expectedWithIndent, true)
+}
+
+func TestReadRESTReq(t *testing.T) {
+	t.Parallel()
+	reqBody := ioutil.NopCloser(strings.NewReader(`{"chain_id":"alessio","memo":"text"}`))
+	req := &http.Request{Body: reqBody}
+	w := httptest.NewRecorder()
+	var br BaseReq
+
+	// test OK
+	ReadRESTReq(w, req, codec.New(), &br)
+	res := w.Result()
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, BaseReq{ChainID: "alessio", Memo: "text"}, br)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	// test non valid JSON
+	reqBody = ioutil.NopCloser(strings.NewReader(`MALFORMED`))
+	req = &http.Request{Body: reqBody}
+	br = BaseReq{}
+	w = httptest.NewRecorder()
+	ReadRESTReq(w, req, codec.New(), &br)
+	require.Equal(t, br, br)
+	res = w.Result()
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, http.StatusBadRequest, res.StatusCode)
+}
+
+func TestWriteSimulationResponse(t *testing.T) {
+	t.Parallel()
+	w := httptest.NewRecorder()
+	WriteSimulationResponse(w, codec.New(), 10)
+	res := w.Result()
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	bs, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, `{"gas_estimate":"10"}`, string(bs))
+}
+
+func TestParseUint64OrReturnBadRequest(t *testing.T) {
+	t.Parallel()
+	w := httptest.NewRecorder()
+	_, ok := ParseUint64OrReturnBadRequest(w, "100")
+	require.True(t, ok)
+	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+
+	w = httptest.NewRecorder()
+	_, ok = ParseUint64OrReturnBadRequest(w, "-100")
+	require.False(t, ok)
+	require.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+}
+
+func TestParseFloat64OrReturnBadRequest(t *testing.T) {
+	t.Parallel()
+	w := httptest.NewRecorder()
+	_, ok := ParseFloat64OrReturnBadRequest(w, "100", 0)
+	require.True(t, ok)
+	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+
+	w = httptest.NewRecorder()
+	_, ok = ParseFloat64OrReturnBadRequest(w, "bad request", 0)
+	require.False(t, ok)
+	require.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+
+	w = httptest.NewRecorder()
+	ret, ok := ParseFloat64OrReturnBadRequest(w, "", 9.0)
+	require.Equal(t, float64(9), ret)
+	require.True(t, ok)
+	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+}
+
+func TestParseQueryParamBool(t *testing.T) {
+	req := httptest.NewRequest("GET", "/target?boolean=true", nil)
+	require.True(t, ParseQueryParamBool(req, "boolean"))
+	require.False(t, ParseQueryParamBool(req, "nokey"))
+	req = httptest.NewRequest("GET", "/target?boolean=false", nil)
+	require.False(t, ParseQueryParamBool(req, "boolean"))
+	require.False(t, ParseQueryParamBool(req, ""))
+}
+
+func TestPostProcessResponseBare(t *testing.T) {
+	t.Parallel()
+
+	// write bytes
+	ctx := context.CLIContext{}
+	w := httptest.NewRecorder()
+	bs := []byte("text string")
+
+	PostProcessResponseBare(w, ctx, bs)
+
+	res := w.Result()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	got, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, "text string", string(got))
+
+	// write struct and indent response
+	ctx = context.CLIContext{Indent: true}.WithCodec(codec.New())
+	w = httptest.NewRecorder()
+	data := struct {
+		X int    `json:"x"`
+		S string `json:"s"`
+	}{X: 10, S: "test"}
+
+	PostProcessResponseBare(w, ctx, data)
+
+	res = w.Result()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	got, err = ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, `{
+  "s": "test",
+  "x": "10"
+}`, string(got))
+
+	// write struct, don't indent response
+	ctx = context.CLIContext{Indent: false}.WithCodec(codec.New())
+	w = httptest.NewRecorder()
+	data = struct {
+		X int    `json:"x"`
+		S string `json:"s"`
+	}{X: 10, S: "test"}
+
+	PostProcessResponseBare(w, ctx, data)
+
+	res = w.Result()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	got, err = ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, `{"x":"10","s":"test"}`, string(got))
+
+	// test marshalling failure
+	ctx = context.CLIContext{Indent: false}.WithCodec(codec.New())
+	w = httptest.NewRecorder()
+	data2 := badJSONMarshaller{}
+
+	PostProcessResponseBare(w, ctx, data2)
+
+	res = w.Result()
+	require.Equal(t, http.StatusInternalServerError, res.StatusCode)
+
+	got, err = ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	t.Cleanup(func() { res.Body.Close() })
+	require.Equal(t, []string{"application/json"}, res.Header["Content-Type"])
+	require.Equal(t, `{"error":"couldn't marshal"}`, string(got))
+}
+
+type badJSONMarshaller struct{}
+
+func (badJSONMarshaller) MarshalJSON() ([]byte, error) {
+	return nil, errors.New("couldn't marshal")
 }
 
 // asserts that ResponseRecorder returns the expected code and body
@@ -215,31 +400,37 @@ func runPostProcessResponse(t *testing.T, ctx context.CLIContext, obj interface{
 
 	// test using regular struct
 	w := httptest.NewRecorder()
+
 	PostProcessResponse(w, ctx, obj)
 	require.Equal(t, http.StatusOK, w.Code, w.Body)
+
 	resp := w.Result()
-	defer resp.Body.Close()
+	t.Cleanup(func() { resp.Body.Close() })
+
 	body, err := ioutil.ReadAll(resp.Body)
 	require.Nil(t, err)
 	require.Equal(t, expectedBody, body)
 
-	var marshalled []byte
+	marshalled, err := ctx.Codec.MarshalJSON(obj)
+	require.NoError(t, err)
+
 	if indent {
-		marshalled, err = ctx.Codec.MarshalJSONIndent(obj, "", "  ")
-	} else {
-		marshalled, err = ctx.Codec.MarshalJSON(obj)
+		marshalled, err = codec.MarshalIndentFromJSON(marshalled)
+		require.NoError(t, err)
 	}
-	require.Nil(t, err)
 
 	// test using marshalled struct
 	w = httptest.NewRecorder()
 	PostProcessResponse(w, ctx, marshalled)
+
 	require.Equal(t, http.StatusOK, w.Code, w.Body)
 	resp = w.Result()
-	defer resp.Body.Close()
+
+	t.Cleanup(func() { resp.Body.Close() })
 	body, err = ioutil.ReadAll(resp.Body)
+
 	require.Nil(t, err)
-	require.Equal(t, expectedBody, body)
+	require.Equal(t, string(expectedBody), string(body))
 }
 
 func mustNewRequest(t *testing.T, method, url string, body io.Reader) *http.Request {
@@ -248,4 +439,36 @@ func mustNewRequest(t *testing.T, method, url string, body io.Reader) *http.Requ
 	err = req.ParseForm()
 	require.NoError(t, err)
 	return req
+}
+
+func TestCheckErrors(t *testing.T) {
+	t.Parallel()
+	err := errors.New("ERROR")
+	tests := []struct {
+		name       string
+		checkerFn  func(w http.ResponseWriter, err error) bool
+		error      error
+		wantErr    bool
+		wantString string
+		wantStatus int
+	}{
+		{"500", CheckInternalServerError, err, true, `{"error":"ERROR"}`, http.StatusInternalServerError},
+		{"500 (no error)", CheckInternalServerError, nil, false, ``, http.StatusInternalServerError},
+		{"400", CheckBadRequestError, err, true, `{"error":"ERROR"}`, http.StatusBadRequest},
+		{"400 (no error)", CheckBadRequestError, nil, false, ``, http.StatusBadRequest},
+		{"404", CheckNotFoundError, err, true, `{"error":"ERROR"}`, http.StatusNotFound},
+		{"404 (no error)", CheckNotFoundError, nil, false, ``, http.StatusNotFound},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			require.Equal(t, tt.wantErr, tt.checkerFn(w, tt.error))
+			if tt.wantErr {
+				require.Equal(t, w.Body.String(), tt.wantString)
+				require.Equal(t, w.Code, tt.wantStatus)
+			}
+		})
+	}
 }

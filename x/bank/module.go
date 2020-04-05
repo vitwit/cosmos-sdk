@@ -7,19 +7,18 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank/client/rest"
-	"github.com/cosmos/cosmos-sdk/x/bank/internal/keeper"
-	"github.com/cosmos/cosmos-sdk/x/bank/internal/types"
+	"github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/simulation"
-	sim "github.com/cosmos/cosmos-sdk/x/simulation"
+	"github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 var (
@@ -39,14 +38,14 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
 
 // DefaultGenesis returns default genesis state as raw bytes for the bank
 // module.
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+	return cdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the bank module.
-func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, bz json.RawMessage) error {
 	var data GenesisState
-	if err := ModuleCdc.UnmarshalJSON(bz, &data); err != nil {
+	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", ModuleName, err)
 	}
 
@@ -111,18 +110,18 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 
 // InitGenesis performs genesis initialization for the bank module. It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the bank
 // module.
-func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
-	return ModuleCdc.MustMarshalJSON(gs)
+	return cdc.MustMarshalJSON(gs)
 }
 
 // BeginBlock performs a no-op.
@@ -144,12 +143,12 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 }
 
 // ProposalContents doesn't return any content functions for governance proposals.
-func (AppModule) ProposalContents(_ module.SimulationState) []sim.WeightedProposalContent {
+func (AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
 	return nil
 }
 
 // RandomizedParams creates randomized bank param changes for the simulator.
-func (AppModule) RandomizedParams(r *rand.Rand) []sim.ParamChange {
+func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 	return simulation.ParamChanges(r)
 }
 
@@ -157,7 +156,7 @@ func (AppModule) RandomizedParams(r *rand.Rand) []sim.ParamChange {
 func (AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 
 // WeightedOperations returns the all the gov module operations with their respective weights.
-func (am AppModule) WeightedOperations(simState module.SimulationState) []sim.WeightedOperation {
+func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
 	return simulation.WeightedOperations(
 		simState.AppParams, simState.Cdc, am.accountKeeper, am.keeper,
 	)

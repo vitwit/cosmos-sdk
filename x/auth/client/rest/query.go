@@ -23,8 +23,7 @@ func QueryAccountRequestHandlerFn(storeName string, cliCtx context.CLIContext) h
 		bech32addr := vars["address"]
 
 		addr, err := sdk.AccAddressFromBech32(bech32addr)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
 
@@ -33,7 +32,7 @@ func QueryAccountRequestHandlerFn(storeName string, cliCtx context.CLIContext) h
 			return
 		}
 
-		accGetter := types.NewAccountRetriever(cliCtx)
+		accGetter := types.NewAccountRetriever(client.Codec, cliCtx)
 
 		account, height, err := accGetter.GetAccountWithHeight(addr)
 		if err != nil {
@@ -94,14 +93,12 @@ func QueryTxsRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		events, page, limit, err = rest.ParseHTTPArgs(r)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if rest.CheckBadRequestError(w, err) {
 			return
 		}
 
 		searchResult, err := client.QueryTxsByEvents(cliCtx, events, page, limit, "")
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
 
@@ -136,5 +133,23 @@ func QueryTxRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		rest.PostProcessResponseBare(w, cliCtx, output)
+	}
+}
+
+func queryParamsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		if !ok {
+			return
+		}
+
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryParams)
+		res, height, err := cliCtx.QueryWithData(route, nil)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
+		cliCtx = cliCtx.WithHeight(height)
+		rest.PostProcessResponse(w, cliCtx, res)
 	}
 }
