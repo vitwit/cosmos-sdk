@@ -14,7 +14,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(AuthorizationGrant{}, "cosmos-sdk/AuthorizationGrant", nil)
 	cdc.RegisterConcrete(GenericAuthorization{}, "cosmos-sdk/GenericAuthorization", nil)
 
-	cdc.RegisterInterface((*Authorization)(nil), nil)
+	cdc.RegisterInterface((*AuthorizationI)(nil), nil)
 }
 
 func init() {

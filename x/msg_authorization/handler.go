@@ -3,7 +3,7 @@ package msg_authorization
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/msg_authorization/internal/types"
+	"github.com/cosmos/cosmos-sdk/x/msg_authorization/types"
 )
 
 func NewHandler(k Keeper) sdk.Handler {

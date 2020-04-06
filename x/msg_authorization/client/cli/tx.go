@@ -15,14 +15,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
-	"github.com/cosmos/cosmos-sdk/x/msg_authorization/internal/types"
+	"github.com/cosmos/cosmos-sdk/x/msg_authorization/types"
 )
 
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	AuthorizationTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Authorization transactions subcommands",
+		Short:                      "AuthorizationI transactions subcommands",
 		Long:                       "Authorize and revoke access to execute transactions on behalf of your address",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
@@ -60,7 +60,7 @@ func GetCmdGrantAuthorization(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			var authorization types.Authorization
+			var authorization types.AuthorizationI
 			err = cdc.UnmarshalJSON(bz, &authorization)
 			if err != nil {
 				return err

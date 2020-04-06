@@ -5,13 +5,13 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-type Authorization interface {
+type AuthorizationI interface {
 	MsgType() string
-	Accept(msg sdk.Msg, block abci.Header) (allow bool, updated Authorization, delete bool)
+	Accept(msg sdk.Msg, block abci.Header) (allow bool, updated AuthorizationI, delete bool)
 }
 
 type AuthorizationGrant struct {
-	Authorization Authorization `json:"authorization"`
+	Authorization AuthorizationI `json:"authorization"`
 
 	Expiration int64 `json:"expiration"`
 }

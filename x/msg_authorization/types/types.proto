@@ -1,0 +1,61 @@
+syntax = "proto3";
+package cosmos_sdk.x.msgauth.v1;
+
+option go_package            = "github.com/cosmos/cosmos-sdk/x/slashing/types";
+option (gogoproto.equal_all) = true;
+
+import "third_party/proto/cosmos-proto/cosmos.proto";
+import "third_party/proto/gogoproto/gogo.proto";
+import "types/types.proto";
+import "google/protobuf/timestamp.proto";
+
+message Authorization{
+    option (gogoproto.equal)           = true;
+    option (cosmos_proto.interface_type) = "*FeeAllowanceI";
+
+    // sum defines a set of all acceptable concrete authorization implementations.
+    oneof sum{
+        SendAuthorization basic_fee_allowance= 1;
+//        GenericAuthorization periodic_fee_allowance= 2;
+    }
+}
+
+message SendAuthorization{
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_getters)  = false;
+
+    repeated cosmos_sdk.v1.Coin spend_limit = 1 [
+                                                (gogoproto.nullable)     = false,
+                                                (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+                                                (gogoproto.moretags) = "yaml:\"spend_limit\""
+                                                ];
+}
+
+//message GenericAuthorization{
+//    option (gogoproto.equal) = true;
+//    option (gogoproto.goproto_getters)  = false;
+//}
+
+// MsgGrantAuthorization grants the provided authorization to the grantee on the granter's
+// account with the provided expiration time.
+message MsgGrantAuthorization{
+    option (gogoproto.goproto_getters) = false;
+
+    bytes granter = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+    bytes grantee = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+
+    Authorization authorization = 3;
+    google.protobuf.Timestamp time = 4 [(gogoproto.stdtime)  = true,
+                                       (gogoproto.nullable) = false
+                                       ];
+}
+
+// MsgRevokeAuthorization revokes any authorization with the provided sdk.Msg type on the
+// granter's account with that has been granted to the grantee.
+message MsgRevokeAuthorization{
+    option (gogoproto.goproto_getters) = false;
+
+    bytes granter = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+    bytes grantee = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+    string authorization_msg_type = 3 [(gogoproto.moretags)  = "yaml:\"authorization_msg_type\""];
+}

@@ -17,7 +17,7 @@ func (authorization SendAuthorization) MsgType() string {
 	return bank.MsgSend{}.Type()
 }
 
-func (authorization SendAuthorization) Accept(msg sdk.Msg, block abci.Header) (allow bool, updated Authorization, delete bool) {
+func (authorization SendAuthorization) Accept(msg sdk.Msg, block abci.Header) (allow bool, updated AuthorizationI, delete bool) {
 	switch msg := msg.(type) {
 	case bank.MsgSend:
 		limitLeft, isNegative := authorization.SpendLimit.SafeSub(msg.Amount)

@@ -7,17 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgGrantAuthorization grants the provided authorization to the grantee on the granter's
-// account with the provided expiration time.
-type MsgGrantAuthorization struct {
-	Granter       sdk.AccAddress `json:"granter"`
-	Grantee       sdk.AccAddress `json:"grantee"`
-	Authorization Authorization  `json:"authorization"`
-	// Expiration specifies the expiration time of the grant
-	Expiration time.Time `json:"expiration"`
-}
-
-func NewMsgGrantAuthorization(granter sdk.AccAddress, grantee sdk.AccAddress, authorization Authorization, expiration time.Time) MsgGrantAuthorization {
+func NewMsgGrantAuthorization(granter sdk.AccAddress, grantee sdk.AccAddress, authorization AuthorizationI, expiration time.Time) MsgGrantAuthorization {
 	return MsgGrantAuthorization{
 		Granter:       granter,
 		Grantee:       grantee,
@@ -50,16 +40,6 @@ func (msg MsgGrantAuthorization) ValidateBasic() error {
 	}
 
 	return nil
-}
-
-// MsgRevokeAuthorization revokes any authorization with the provided sdk.Msg type on the
-// granter's account with that has been granted to the grantee.
-type MsgRevokeAuthorization struct {
-	Granter sdk.AccAddress `json:"granter"`
-	Grantee sdk.AccAddress `json:"grantee"`
-	// AuthorizationMsgType is the type of sdk.Msg that the revoked Authorization refers to.
-	// i.e. this is what `Authorization.MsgType()` returns
-	AuthorizationMsgType string `json:"authorization_msg_type"`
 }
 
 func NewMsgRevokeAuthorization(granter sdk.AccAddress, grantee sdk.AccAddress, authorizationMsgType string) MsgRevokeAuthorization {
