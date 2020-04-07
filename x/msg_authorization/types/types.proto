@@ -11,12 +11,12 @@ import "google/protobuf/timestamp.proto";
 
 message Authorization{
     option (gogoproto.equal)           = true;
-    option (cosmos_proto.interface_type) = "*FeeAllowanceI";
+    option (cosmos_proto.interface_type) = "*AuthorizationI";
 
     // sum defines a set of all acceptable concrete authorization implementations.
     oneof sum{
-        SendAuthorization basic_fee_allowance= 1;
-//        GenericAuthorization periodic_fee_allowance= 2;
+        SendAuthorization send_authorization = 1;
+//        GenericAuthorization generic_authorization = 2;
     }
 }
 
@@ -45,7 +45,7 @@ message MsgGrantAuthorization{
     bytes grantee = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 
     Authorization authorization = 3;
-    google.protobuf.Timestamp time = 4 [(gogoproto.stdtime)  = true,
+    google.protobuf.Timestamp expiration = 4 [(gogoproto.stdtime)  = true,
                                        (gogoproto.nullable) = false
                                        ];
 }
@@ -58,4 +58,11 @@ message MsgRevokeAuthorization{
     bytes granter = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
     bytes grantee = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
     string authorization_msg_type = 3 [(gogoproto.moretags)  = "yaml:\"authorization_msg_type\""];
+}
+
+message AuthorizationGrant{
+    Authorization authorization = 1 [(gogoproto.nullable) = false];
+    google.protobuf.Timestamp expiration = 2 [(gogoproto.stdtime)  = true,
+                                             (gogoproto.nullable) = false
+                                             ];
 }

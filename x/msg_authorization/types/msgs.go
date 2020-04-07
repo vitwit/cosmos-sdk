@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func NewMsgGrantAuthorization(granter sdk.AccAddress, grantee sdk.AccAddress, authorization AuthorizationI, expiration time.Time) MsgGrantAuthorization {
+func NewMsgGrantAuthorization(granter sdk.AccAddress, grantee sdk.AccAddress, authorization *Authorization, expiration time.Time) MsgGrantAuthorization {
 	return MsgGrantAuthorization{
 		Granter:       granter,
 		Grantee:       grantee,
