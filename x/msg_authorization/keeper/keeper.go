@@ -12,12 +12,12 @@ import (
 
 type Keeper struct {
 	storeKey sdk.StoreKey
-	cdc      *codec.Codec
+	cdc      codec.Marshaler
 	router   baseapp.Router
 }
 
 // NewKeeper constructs a message authorisation Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, router baseapp.Router) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, cdc codec.Marshaler, router baseapp.Router) Keeper {
 	return Keeper{
 		storeKey: storeKey,
 		cdc:      cdc,
@@ -47,7 +47,7 @@ func (k Keeper) update(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccA
 	}
 	grant.Authorization = updated
 	store := ctx.KVStore(k.storeKey)
-	store.Set(actor, k.cdc.MustMarshalBinaryBare(grant))
+	store.Set(actor, k.cdc.MustMarshalBinaryBare(&grant))
 }
 
 // DispatchActions attempts to execute the provided messages via authorization
@@ -95,7 +95,7 @@ func (k Keeper) DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []
 // overwrites that.
 func (k Keeper) Grant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, authorization types.Authorization, expiration int64) {
 	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshalBinaryBare(types.AuthorizationGrant{Authorization: authorization, Expiration: expiration})
+	bz := k.cdc.MustMarshalBinaryBare(&types.AuthorizationGrant{Authorization: authorization, Expiration: expiration})
 	actor := k.getActorAuthorizationKey(grantee, granter, authorization.GetAuthorizationI().MsgType())
 	store.Set(actor, bz)
 }

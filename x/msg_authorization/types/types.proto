@@ -7,6 +7,7 @@ option (gogoproto.equal_all) = true;
 import "third_party/proto/cosmos-proto/cosmos.proto";
 import "third_party/proto/gogoproto/gogo.proto";
 import "types/types.proto";
+import "google/protobuf/timestamp.proto";
 
 message Authorization{
     option (gogoproto.equal)           = true;
@@ -30,10 +31,12 @@ message SendAuthorization{
                                                 ];
 }
 
-//message GenericAuthorization{
-//    option (gogoproto.equal) = true;
-//    option (gogoproto.goproto_getters)  = false;
-//}
+message GenericAuthorization{
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_getters)  = false;
+
+
+}
 
 // MsgGrantAuthorization grants the provided authorization to the grantee on the granter's
 // account with the provided expiration time.
@@ -44,7 +47,8 @@ message MsgGrantAuthorization{
     bytes grantee = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 
     Authorization authorization = 3;
-    int64 expiration = 4;
+    google.protobuf.Timestamp expiration = 4 [(gogoproto.stdtime)  = true,
+                                             (gogoproto.nullable) = false];
 }
 
 // MsgRevokeAuthorization revokes any authorization with the provided sdk.Msg type on the

@@ -1,16 +1,9 @@
 package keeper
 
 import (
-	"time"
-
-	"github.com/tendermint/tendermint/crypto/ed25519"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codecstd "github.com/cosmos/cosmos-sdk/codec/std"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -19,27 +12,36 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
+	"time"
 )
 
-func makeTestCodec() *codec.Codec {
-	var cdc = codec.New()
-	auth.RegisterCodec(cdc)
-	types.RegisterCodec(cdc)
-	supply.RegisterCodec(cdc)
-	staking.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
+func makeTestCodec() codec.Marshaler {
+	var (
+		amino = codec.New()
 
-	return cdc
+		ModuleCdc = codec.NewHybridCodec(amino)
+	)
+	auth.RegisterCodec(amino)
+	types.RegisterCodec(amino)
+	supply.RegisterCodec(amino)
+	staking.RegisterCodec(amino)
+	sdk.RegisterCodec(amino)
+	codec.RegisterCrypto(amino)
+
+	return ModuleCdc
 }
 func SetupTestInput() (sdk.Context, auth.AccountKeeper, params.Keeper, bank.BaseKeeper, Keeper, baseapp.Router) {
 	db := dbm.NewMemDB()
 
-	cdc := codec.New()
-	auth.RegisterCodec(cdc)
-	bank.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
+	amino := codec.New()
+	auth.RegisterCodec(amino)
+	bank.RegisterCodec(amino)
+	sdk.RegisterCodec(amino)
+	codec.RegisterCrypto(amino)
 
 	keyAcc := sdk.NewKVStoreKey(auth.StoreKey)
 	keyParams := sdk.NewKVStoreKey(params.StoreKey)
@@ -57,19 +59,19 @@ func SetupTestInput() (sdk.Context, auth.AccountKeeper, params.Keeper, bank.Base
 	ms.LoadLatestVersion()
 
 	ctx := sdk.NewContext(ms, abci.Header{Time: time.Unix(0, 0)}, false, log.NewNopLogger())
-	cdc = makeTestCodec()
+	ModuleCdc := makeTestCodec()
 
 	blacklistedAddrs := make(map[string]bool)
 
-	paramsKeeper := params.NewKeeper(params.ModuleCdc, keyParams, tkeyParams)
-	authKeeper := auth.NewAccountKeeper(cdc, keyAcc, paramsKeeper.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
-	bankKeeper := bank.NewBaseKeeper(cdc, keyBank, authKeeper, paramsKeeper.Subspace(bank.DefaultParamspace), blacklistedAddrs)
+	paramsKeeper := params.NewKeeper(ModuleCdc, keyParams, tkeyParams)
+	authKeeper := auth.NewAccountKeeper(codecstd.NewAppCodec(amino), keyAcc, paramsKeeper.Subspace(auth.DefaultParamspace), auth.ProtoBaseAccount)
+	bankKeeper := bank.NewBaseKeeper(ModuleCdc, keyBank, authKeeper, paramsKeeper.Subspace(bank.DefaultParamspace), blacklistedAddrs)
 	bankKeeper.SetSendEnabled(ctx, true)
 
 	router := *baseapp.NewRouter()
 	router.AddRoute("bank", bank.NewHandler(bankKeeper))
 
-	authorizationKeeper := NewKeeper(keyAuthorization, cdc, router)
+	authorizationKeeper := NewKeeper(keyAuthorization, ModuleCdc, router)
 	authKeeper.SetParams(ctx, auth.DefaultParams())
 
 	return ctx, authKeeper, paramsKeeper, bankKeeper, authorizationKeeper, router

@@ -16,6 +16,6 @@ func (cap GenericAuthorization) MsgType() string {
 	return cap.Message.Type()
 }
 
-func (cap GenericAuthorization) Accept(msg sdk.Msg, block abci.Header) (allow bool, updated AuthorizationI, delete bool) {
+func (cap GenericAuthorization) Accept(msg sdk.Msg, block abci.Header) (allow bool, updated Authorization, delete bool) {
 	return true, cap, false
 }

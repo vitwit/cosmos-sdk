@@ -4,8 +4,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
-var ModuleCdc = codec.New()
-
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgGrantAuthorization{}, "cosmos-sdk/GrantAuthorization", nil)
 	cdc.RegisterConcrete(MsgRevokeAuthorization{}, "cosmos-sdk/RevokeAuthorization", nil)
@@ -17,6 +15,14 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterInterface((*AuthorizationI)(nil), nil)
 }
 
+var (
+	amino = codec.New()
+
+	ModuleCdc = codec.NewHybridCodec(amino)
+)
+
 func init() {
-	RegisterCodec(ModuleCdc)
+	RegisterCodec(amino)
+	codec.RegisterCrypto(amino)
+	amino.Seal()
 }
