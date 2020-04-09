@@ -43,13 +43,13 @@ func (s *TestSuite) TestKeeper() {
 	newCoins := sdk.NewCoins(sdk.NewInt64Coin("steak", 100))
 	s.T().Log("verify if expired authorization is rejected")
 	x := types.SendAuthorization{SpendLimit: newCoins}
-	s.keeper.Grant(s.ctx, granterAddr, granteeAddr, x, now.Add(-1*time.Hour))
+	s.keeper.Grant(s.ctx, granterAddr, granteeAddr, x, now.Unix()-3600)
 	authorization, _ = s.keeper.GetAuthorization(s.ctx, granteeAddr, granterAddr, bank.MsgSend{}.Type())
 	s.Require().Nil(authorization)
 
 	s.T().Log("verify if authorization is accepted")
 	x = types.SendAuthorization{SpendLimit: newCoins}
-	s.keeper.Grant(s.ctx, granteeAddr, granterAddr, x, now.Add(time.Hour))
+	s.keeper.Grant(s.ctx, granteeAddr, granterAddr, x, now.Unix()-3600)
 	authorization, _ = s.keeper.GetAuthorization(s.ctx, granteeAddr, granterAddr, bank.MsgSend{}.Type())
 	s.Require().NotNil(authorization)
 	s.Require().Equal(authorization.MsgType(), bank.MsgSend{}.Type())

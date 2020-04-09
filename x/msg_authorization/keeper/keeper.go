@@ -3,8 +3,6 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	"time"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,8 +39,8 @@ func (k Keeper) getAuthorizationGrant(ctx sdk.Context, actor []byte) (grant type
 	return grant, true
 }
 
-func (k Keeper) update(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, updated types.AuthorizationI) {
-	actor := k.getActorAuthorizationKey(grantee, granter, updated.MsgType())
+func (k Keeper) update(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, updated types.Authorization) {
+	actor := k.getActorAuthorizationKey(grantee, granter, updated.GetAuthorizationI().MsgType())
 	grant, found := k.getAuthorizationGrant(ctx, actor)
 	if !found {
 		return
@@ -74,7 +72,7 @@ func (k Keeper) DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []
 			}
 			if del {
 				k.Revoke(ctx, grantee, granter, msg.Type())
-			} else if updated != nil {
+			} else if !updated.Equal(nil) {
 				k.update(ctx, grantee, granter, updated)
 			}
 		}
@@ -95,10 +93,10 @@ func (k Keeper) DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []
 // Grant method grants the provided authorization to the grantee on the granter's account with the provided expiration
 // time. If there is an existing authorization grant for the same `sdk.Msg` type, this grant
 // overwrites that.
-func (k Keeper) Grant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, authorization types.AuthorizationI, expiration time.Time) {
+func (k Keeper) Grant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, authorization types.Authorization, expiration int64) {
 	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshalBinaryBare(types.AuthorizationGrant{Authorization: authorization, Expiration: expiration.Unix()})
-	actor := k.getActorAuthorizationKey(grantee, granter, authorization.MsgType())
+	bz := k.cdc.MustMarshalBinaryBare(types.AuthorizationGrant{Authorization: authorization, Expiration: expiration})
+	actor := k.getActorAuthorizationKey(grantee, granter, authorization.GetAuthorizationI().MsgType())
 	store.Set(actor, bz)
 }
 
@@ -126,5 +124,5 @@ func (k Keeper) GetAuthorization(ctx sdk.Context, grantee sdk.AccAddress, grante
 		k.Revoke(ctx, grantee, granter, msgType)
 		return nil, 0
 	}
-	return grant.Authorization, grant.Expiration
+	return grant.Authorization.GetAuthorizationI(), grant.Expiration
 }
