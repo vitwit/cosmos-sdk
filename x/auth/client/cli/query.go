@@ -76,20 +76,26 @@ func GetAccountCmd(clientCtx client.Context) *cobra.Command {
 		Short: "Query for account by address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.NewContext().WithCodec(cdc)
-			accGetter := types.NewAccountRetriever(authclient.Codec)
+			queryClient := types.NewQueryClient(clientCtx.Init())
 
 			key, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
-			acc, err := accGetter.GetAccount(clientCtx, key)
+			params := types.NewQueryAccountRequest(key)
+					
+			res, err := queryClient.Account(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(acc)
+			account, err:= types.UnpackAccountAny(res.Account)
+			if err != nil {
+				return err
+			}
+			
+			return clientCtx.PrintOutput(account)
 		},
 	}
 

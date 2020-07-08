@@ -10,6 +10,8 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	yaml "gopkg.in/yaml.v2"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -306,6 +308,19 @@ type AccountI interface {
 
 	// Ensure that account implements stringer
 	String() string
+}
+
+// UnpackAccountAny unpack any to AccountI
+func UnpackAccountAny(account *codectypes.Any) (AccountI, error) {
+	var newAccount AccountI
+
+	app := simapp.Setup(true)
+	err := app.InterfaceRegistry().UnpackAny(account, &newAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	return newAccount, nil
 }
 
 // ModuleAccountI defines an account interface for modules that hold tokens in
