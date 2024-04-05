@@ -1,4 +1,4 @@
-//go:build app_v1
+//go:build !app_v1
 
 package simapp
 
@@ -336,6 +336,26 @@ func NewSimApp(
 	app.BaseApp.SetCircuitBreaker(&app.CircuitKeeper)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(runtime.NewKVStoreService(keys[authzkeeper.StoreKey]), appCodec, app.MsgServiceRouter(), app.AccountKeeper)
+
+	rules := func(msg sdk.Msg) bool {
+		switch msg := msg.(type) {
+		case *banktypes.MsgSend:
+			blockedAddrs := []string{"cosmos1rnr5jrt4exl0samwj0yegv99jeskl0hsge5zwt"}
+			for _, v := range blockedAddrs {
+				if msg.ToAddress == v {
+					return true
+				}
+			}
+			return false
+		case *stakingtypes.MsgDelegate:
+			// Your logic for stake messages here
+			return false
+		default:
+			return false
+		}
+	}
+
+	app.AuthzKeeper = app.AuthzKeeper.SetAuthzRules(rules)
 
 	groupConfig := group.DefaultConfig()
 	/*

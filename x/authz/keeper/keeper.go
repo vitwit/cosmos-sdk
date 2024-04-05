@@ -34,6 +34,7 @@ type Keeper struct {
 	cdc          codec.Codec
 	router       baseapp.MessageRouter
 	authKeeper   authz.AccountKeeper
+	rules        func(msg sdk.Msg) bool
 }
 
 // NewKeeper constructs a message authorization Keeper
@@ -92,12 +93,27 @@ func (k Keeper) update(ctx context.Context, grantee, granter sdk.AccAddress, upd
 	return nil
 }
 
+func (k Keeper) SetAuthzRules(rules func(msg sdk.Msg) bool) Keeper {
+	k.rules = rules
+	return k
+}
+
 // DispatchActions attempts to execute the provided messages via authorization
 // grants from the message signer to the grantee.
 func (k Keeper) DispatchActions(ctx context.Context, grantee sdk.AccAddress, msgs []sdk.Msg) ([][]byte, error) {
 	results := make([][]byte, len(msgs))
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	now := sdkCtx.BlockTime()
+
+	for _, msg := range msgs {
+		// switch sdk.MsgTypeURL(msg) {
+		// case sdk.MsgTypeURL(&bankv1beta1.MsgSend{}):
+		ok := k.rules(msg)
+		if ok {
+			return nil, fmt.Errorf("receiver blocked")
+		}
+		// }
+	}
 
 	for i, msg := range msgs {
 		signers, _, err := k.cdc.GetMsgV1Signers(msg)
