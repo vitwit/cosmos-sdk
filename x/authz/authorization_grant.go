@@ -32,6 +32,26 @@ func NewGrant(blockTime time.Time, a Authorization, expiration *time.Time) (Gran
 	}, nil
 }
 
+// NewGrantWithRules does the same as NewGrant but takes rules as extra arg.
+func NewGrantWithRules(blockTime time.Time, a Authorization, expiration *time.Time, rules []byte) (Grant, error) {
+	if expiration != nil && !expiration.After(blockTime) {
+		return Grant{}, errorsmod.Wrapf(ErrInvalidExpirationTime, "expiration must be after the current block time (%v), got %v", blockTime.Format(time.RFC3339), expiration.Format(time.RFC3339))
+	}
+	msg, ok := a.(proto.Message)
+	if !ok {
+		return Grant{}, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", a)
+	}
+	any, err := cdctypes.NewAnyWithValue(msg)
+	if err != nil {
+		return Grant{}, err
+	}
+	return Grant{
+		Expiration:    expiration,
+		Authorization: any,
+		Rules:         rules,
+	}, nil
+}
+
 var _ cdctypes.UnpackInterfacesMessage = &Grant{}
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

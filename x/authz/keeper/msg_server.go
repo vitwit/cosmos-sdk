@@ -52,7 +52,7 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 		return nil, sdkerrors.ErrInvalidType.Wrapf("%s doesn't exist.", t)
 	}
 
-	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration)
+	err = k.SaveGrantWithRules(ctx, grantee, granter, authorization, msg.Grant.Expiration, msg.Rules)
 	if err != nil {
 		return nil, err
 	}

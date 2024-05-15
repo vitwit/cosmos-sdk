@@ -110,9 +110,13 @@ func (k Keeper) GetAuthzRulesKeys(ctx context.Context) (map[string]interface{}, 
 		return nil, err
 	}
 
+	// rules := map[string]interface{}{
+	// 	"Send":  []string{"AllowRecipients", "SpendLImit"},
+	// 	"Stake": []string{"DelegateLimit"},
+	// }
 	rules := map[string]interface{}{
-		"Send":  []string{"AllowRecipients", "SpendLImit"},
-		"Stake": []string{"DelegateLimit"},
+		// "Send":  []string{"AllowRecipients", "SpendLImit"},
+		// "Stake": []string{"DelegateLimit"},
 	}
 
 	return rules, nil
@@ -244,6 +248,53 @@ func (k Keeper) SaveGrant(ctx context.Context, grantee, granter sdk.AccAddress, 
 	skey := grantStoreKey(grantee, granter, msgType)
 
 	grant, err := authz.NewGrant(sdkCtx.BlockTime(), authorization, expiration)
+	if err != nil {
+		return err
+	}
+
+	var oldExp *time.Time
+	if oldGrant, found := k.getGrant(ctx, skey); found {
+		oldExp = oldGrant.Expiration
+	}
+
+	if oldExp != nil && (expiration == nil || !oldExp.Equal(*expiration)) {
+		if err = k.removeFromGrantQueue(ctx, skey, granter, grantee, *oldExp); err != nil {
+			return err
+		}
+	}
+
+	// If the expiration didn't change, then we don't remove it and we should not insert again
+	if expiration != nil && (oldExp == nil || !oldExp.Equal(*expiration)) {
+		if err = k.insertIntoGrantQueue(ctx, granter, grantee, msgType, *expiration); err != nil {
+			return err
+		}
+	}
+
+	bz, err := k.cdc.Marshal(&grant)
+	if err != nil {
+		return err
+	}
+
+	err = store.Set(skey, bz)
+	if err != nil {
+		return err
+	}
+
+	return sdkCtx.EventManager().EmitTypedEvent(&authz.EventGrant{
+		MsgTypeUrl: authorization.MsgTypeURL(),
+		Granter:    granter.String(),
+		Grantee:    grantee.String(),
+	})
+}
+
+// SaveGrantWithRules method does the same as SaveGrant method but stores rules.
+func (k Keeper) SaveGrantWithRules(ctx context.Context, grantee, granter sdk.AccAddress, authorization authz.Authorization, expiration *time.Time, rules []byte) error {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	msgType := authorization.MsgTypeURL()
+	store := k.storeService.OpenKVStore(ctx)
+	skey := grantStoreKey(grantee, granter, msgType)
+
+	grant, err := authz.NewGrantWithRules(sdkCtx.BlockTime(), authorization, expiration, rules)
 	if err != nil {
 		return err
 	}

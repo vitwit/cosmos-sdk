@@ -1,7 +1,6 @@
 package ante
 
 import (
-	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -12,13 +11,20 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
+const (
+	AllowedRecipients = "allowed_recipients"
+	MaxAmount         = "max_amount"
+)
+
 type AuthzDecorator struct {
 	azk AuthzKeeper
+	ak  AccountKeeper
 }
 
-func NewAuthzDecorator(azk AuthzKeeper) AuthzDecorator {
+func NewAuthzDecorator(azk AuthzKeeper, ak AccountKeeper) AuthzDecorator {
 	return AuthzDecorator{
 		azk: azk,
+		ak:  ak,
 	}
 }
 
@@ -41,11 +47,6 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 		// Check if the message is an authorization message
 		if authzMsg, ok := msg.(*authztypes.MsgExec); ok {
 
-			rulesKeys, err := azd.azk.GetAuthzRulesKeys(ctx)
-			if err != nil {
-				return ctx, err
-			}
-
 			msgs, err := authzMsg.GetMessages()
 			if err != nil {
 				return ctx, err
@@ -54,23 +55,9 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 			for _, innerMsg := range msgs {
 				switch innerMsgConverted := innerMsg.(type) {
 				case *banktypes.MsgSend:
-					sendRuleKeysInterface, ok := rulesKeys["Send"]
-					if !ok {
-						fmt.Println("no rule keys")
-						continue
-					}
-
-					granter, err := azd.azk.AddressCodec().StringToBytes(innerMsgConverted.FromAddress)
-					if err != nil {
+					isRulesBroken, err := azd.handleSendAuthzRules(ctx, innerMsgConverted, grantee)
+					if isRulesBroken {
 						return ctx, err
-					}
-
-					_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&banktypes.MsgSend{}))
-					if rules != nil {
-						sendRulesKeys := sendRuleKeysInterface.([]string)
-						if checkSendAuthzRulesViolated(innerMsgConverted, rules, sendRulesKeys) {
-							return ctx, fmt.Errorf("authz rules are not meeting")
-						}
 					}
 				}
 			}
@@ -81,49 +68,56 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 	return next(ctx, tx, simulate)
 }
 
-// checkSendAuthzRulesViolated returns true if the rules are voilated
-func checkSendAuthzRulesViolated(msg *banktypes.MsgSend, sendAuthzRules map[string]interface{}, sendRulesKeys []string) bool {
-	for _, key := range sendRulesKeys {
+// handleCheckSendAuthzRules returns true if the rules are voilated
+func (azd AuthzDecorator) handleSendAuthzRules(ctx sdk.Context, msg *banktypes.MsgSend, grantee []byte) (bool, error) {
 
-		fmt.Printf("\">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\": %v\n", ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		fmt.Printf("sendAuthzRules: %v\n", sendAuthzRules)
-		if blockedAddrsStrInt, ok := sendAuthzRules["AllowRecipients"]; key == "AllowRecipients" && ok {
-			blockedAddrsStr := blockedAddrsStrInt.(string)
-			blockedAddrs := strings.Split(blockedAddrsStr, ",")
-			for _, blockedRecipient := range blockedAddrs {
-				if msg.ToAddress == blockedRecipient {
-					return true
+	granter, err := azd.ak.AddressCodec().StringToBytes(msg.FromAddress)
+	if err != nil {
+		return true, err
+	}
+
+	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&banktypes.MsgSend{}))
+	if rules != nil {
+		if allowedAddrs, ok := rules[AllowedRecipients]; ok {
+			allowedAddrsValue := allowedAddrs.(string)
+			allowedAddrs := strings.Split(allowedAddrsValue, ",")
+			isAllowed := false
+			for _, allowedRecipient := range allowedAddrs {
+				if msg.ToAddress == allowedRecipient {
+					isAllowed = true
+					break
 				}
 			}
+
+			if !isAllowed {
+				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Recipient is not in the allowed list of the grant")
+			}
 		}
 
-		if spendLimitInt, ok := sendAuthzRules["SpendLImit"]; key == "SpendLImit" && ok {
-			spendLimit := spendLimitInt.(string)
+		if spendLimitInterface, ok := rules[MaxAmount]; ok {
+			spendLimit := spendLimitInterface.(string)
 			limit, err := sdk.ParseCoinsNormalized(spendLimit)
 			if err != nil {
-				return true
+				return true, err
 			}
 			if !limit.IsAllGTE(msg.Amount) {
-				return true
-			}
-
-			return true
-		}
-
-	}
-
-	return false
-}
-
-func checkGenericAuthzRules(_ *authztypes.MsgGrant, authz *authztypes.GenericAuthorization, genericRules map[string]string) bool {
-	if msgsStr, ok := genericRules["blockedMessages"]; ok {
-		msgs := strings.Split(msgsStr, ",")
-		for _, v := range msgs {
-			if v == authz.Msg {
-				return true
+				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Amount exceeds the max_amount limit set by the granter")
 			}
 		}
 	}
 
-	return false
+	return false, nil
 }
+
+// func checkGenericAuthzRules(_ *authztypes.MsgGrant, authz *authztypes.GenericAuthorization, genericRules map[string]string) bool {
+// 	if msgsStr, ok := genericRules["blockedMessages"]; ok {
+// 		msgs := strings.Split(msgsStr, ",")
+// 		for _, v := range msgs {
+// 			if v == authz.Msg {
+// 				return true
+// 			}
+// 		}
+// 	}
+
+// 	return false
+// }
