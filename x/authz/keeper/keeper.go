@@ -3,7 +3,6 @@ package keeper
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -67,65 +66,6 @@ func (k Keeper) getGrant(ctx context.Context, skey []byte) (grant authz.Grant, f
 	}
 	k.cdc.MustUnmarshal(bz, &grant)
 	return grant, true
-}
-
-func (k Keeper) SetAuthzRulesKeys(ctx context.Context, options json.RawMessage) error {
-	store := k.storeService.OpenKVStore(ctx)
-
-	optionsBytes, err := json.Marshal(options)
-	if err != nil {
-		return err
-	}
-
-	authzRuleKeys := authz.AuthzRuleKeys{
-		RawJson: optionsBytes,
-	}
-
-	bz, err := k.cdc.Marshal(&authzRuleKeys)
-	if err != nil {
-		return err
-	}
-
-	err = store.Set(AuthzOptionsKeys, bz)
-	return err
-}
-
-func (k Keeper) GetAuthzRulesKeys(ctx context.Context) (map[string]interface{}, error) {
-	store := k.storeService.OpenKVStore(ctx)
-	bz, err := store.Get(AuthzOptionsKeys)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var keys json.RawMessage
-	var authzRuleKeys authz.AuthzRuleKeys
-	err = k.cdc.Unmarshal(bz, &authzRuleKeys)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(authzRuleKeys.RawJson, &keys)
-	if err != nil {
-		return nil, err
-	}
-
-	// rules := map[string]interface{}{
-	// 	"Send":  []string{"AllowRecipients", "SpendLImit"},
-	// 	"Stake": []string{"DelegateLimit"},
-	// }
-	rules := map[string]interface{}{
-		// "Send":  []string{"AllowRecipients", "SpendLImit"},
-		// "Stake": []string{"DelegateLimit"},
-	}
-
-	return rules, nil
-
-	// return keys, nil
-}
-
-func (k Keeper) GetAuthzOptions() map[string]map[string]string {
-	return nil
 }
 
 func (k Keeper) update(ctx context.Context, grantee, granter sdk.AccAddress, updated authz.Authorization) error {
@@ -247,54 +187,7 @@ func (k Keeper) SaveGrant(ctx context.Context, grantee, granter sdk.AccAddress, 
 	store := k.storeService.OpenKVStore(ctx)
 	skey := grantStoreKey(grantee, granter, msgType)
 
-	grant, err := authz.NewGrant(sdkCtx.BlockTime(), authorization, expiration)
-	if err != nil {
-		return err
-	}
-
-	var oldExp *time.Time
-	if oldGrant, found := k.getGrant(ctx, skey); found {
-		oldExp = oldGrant.Expiration
-	}
-
-	if oldExp != nil && (expiration == nil || !oldExp.Equal(*expiration)) {
-		if err = k.removeFromGrantQueue(ctx, skey, granter, grantee, *oldExp); err != nil {
-			return err
-		}
-	}
-
-	// If the expiration didn't change, then we don't remove it and we should not insert again
-	if expiration != nil && (oldExp == nil || !oldExp.Equal(*expiration)) {
-		if err = k.insertIntoGrantQueue(ctx, granter, grantee, msgType, *expiration); err != nil {
-			return err
-		}
-	}
-
-	bz, err := k.cdc.Marshal(&grant)
-	if err != nil {
-		return err
-	}
-
-	err = store.Set(skey, bz)
-	if err != nil {
-		return err
-	}
-
-	return sdkCtx.EventManager().EmitTypedEvent(&authz.EventGrant{
-		MsgTypeUrl: authorization.MsgTypeURL(),
-		Granter:    granter.String(),
-		Grantee:    grantee.String(),
-	})
-}
-
-// SaveGrantWithRules method does the same as SaveGrant method but stores rules.
-func (k Keeper) SaveGrantWithRules(ctx context.Context, grantee, granter sdk.AccAddress, authorization authz.Authorization, expiration *time.Time, rules []byte) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	msgType := authorization.MsgTypeURL()
-	store := k.storeService.OpenKVStore(ctx)
-	skey := grantStoreKey(grantee, granter, msgType)
-
-	grant, err := authz.NewGrantWithRules(sdkCtx.BlockTime(), authorization, expiration, rules)
+	grant, err := authz.NewGrant(sdkCtx.BlockTime(), authorization, expiration, nil)
 	if err != nil {
 		return err
 	}
@@ -409,25 +302,19 @@ func (k Keeper) GetAuthorization(ctx context.Context, grantee, granter sdk.AccAd
 	return auth, grant.Expiration
 }
 
-func (k Keeper) GetAuthzWithRules(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) (authz.Authorization, map[string]interface{}) {
+func (k Keeper) GetAuthzWithRules(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) (authz.Authorization, []*authz.Rule) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	grant, found := k.getGrant(ctx, grantStoreKey(grantee, granter, msgType))
 	if !found || (grant.Expiration != nil && grant.Expiration.Before(sdkCtx.BlockHeader().Time)) {
 		return nil, nil
 	}
 
-	auth, err := grant.GetAuthorization()
+	authz, err := grant.GetAuthorization()
 	if err != nil {
 		return nil, nil
 	}
 
-	var rules map[string]interface{}
-	err = json.Unmarshal(grant.Rules, &rules)
-	if err != nil {
-		return nil, nil
-	}
-
-	return auth, rules
+	return authz, grant.Rules
 }
 
 // IterateGrants iterates over all authorization grants

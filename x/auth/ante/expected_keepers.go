@@ -26,7 +26,5 @@ type FeegrantKeeper interface {
 }
 
 type AuthzKeeper interface {
-	GetAuthzOptions() map[string]map[string]string
-	GetAuthzRulesKeys(ctx context.Context) (map[string]interface{}, error)
-	GetAuthzWithRules(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) (authz.Authorization, map[string]interface{})
+	GetAuthzWithRules(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) (authz.Authorization, []*authz.Rule)
 }

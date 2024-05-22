@@ -33,7 +33,7 @@ func NewMsgGrant(granter, grantee sdk.AccAddress, a Authorization, expiration *t
 	return m, nil
 }
 
-func (msg *MsgGrant) SetAuthzRules(rules []byte) {
+func (msg *MsgGrant) SetAuthzRules(rules []*Rule) {
 	msg.Rules = rules
 }
 

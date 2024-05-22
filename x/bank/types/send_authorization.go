@@ -2,7 +2,6 @@ package types
 
 import (
 	context "context"
-	"encoding/json"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -96,8 +95,4 @@ func toBech32Addresses(allowed []sdk.AccAddress) []string {
 	}
 
 	return allowedAddrs
-}
-
-func (a SendAuthorization) GetOptions() json.RawMessage {
-	return nil
 }
