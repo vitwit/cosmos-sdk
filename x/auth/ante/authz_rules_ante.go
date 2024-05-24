@@ -43,25 +43,24 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 		// Check if the message is an authorization message
 		if authzMsg, ok := msg.(*authztypes.MsgExec); ok {
 
-			msgs, err := authzMsg.GetMessages()
+			authzMsgs, err := authzMsg.GetMessages()
 			if err != nil {
 				return ctx, err
 			}
 
-			for _, innerMsg := range msgs {
+			for _, innerMsg := range authzMsgs {
 				switch innerMsgConverted := innerMsg.(type) {
 				case *banktypes.MsgSend:
-					isRulesBroken, err := azd.handleSendAuthzRules(ctx, innerMsgConverted, grantee)
-					if isRulesBroken {
+					err := azd.handleSendAuthzRules(ctx, innerMsgConverted, grantee)
+					if err != nil {
 						return ctx, err
 					}
 				case *stakingv1beta1.MsgDelegate:
-					isRulesBroken, err := azd.handleStakeAuthzRules(ctx, innerMsgConverted, grantee)
-					if isRulesBroken {
+					err := azd.handleStakeAuthzRules(ctx, innerMsgConverted, grantee)
+					if err != nil {
 						return ctx, err
 					}
 				}
-
 			}
 		}
 	}
@@ -71,11 +70,10 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 }
 
 // handleCheckSendAuthzRules returns true if the rules are voilated
-func (azd AuthzDecorator) handleSendAuthzRules(ctx sdk.Context, msg *banktypes.MsgSend, grantee []byte) (bool, error) {
-
+func (azd AuthzDecorator) handleSendAuthzRules(ctx sdk.Context, msg *banktypes.MsgSend, grantee []byte) error {
 	granter, err := azd.ak.AddressCodec().StringToBytes(msg.FromAddress)
 	if err != nil {
-		return true, err
+		return err
 	}
 
 	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&banktypes.MsgSend{}))
@@ -90,29 +88,29 @@ func (azd AuthzDecorator) handleSendAuthzRules(ctx sdk.Context, msg *banktypes.M
 			}
 
 			if !isAllowed {
-				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Recipient is not in the allowed list of the grant")
+				return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Recipient is not in the allowed list of the grant")
 			}
 		}
 
 		if rule.Key == authztypes.MaxAmount {
 			limit, err := sdk.ParseCoinsNormalized(strings.Join(rule.Values, ","))
 			if err != nil {
-				return true, err
+				return err
 			}
 			if !limit.IsAllGTE(msg.Amount) {
-				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Amount exceeds the max_amount limit set by the granter")
+				return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Amount exceeds the max_amount limit set by the granter")
 			}
 		}
 
 	}
 
-	return false, nil
+	return nil
 }
 
-func (azd AuthzDecorator) handleStakeAuthzRules(ctx sdk.Context, msg *stakingv1beta1.MsgDelegate, grantee []byte) (bool, error) {
+func (azd AuthzDecorator) handleStakeAuthzRules(ctx sdk.Context, msg *stakingv1beta1.MsgDelegate, grantee []byte) error {
 	granter, err := azd.ak.AddressCodec().StringToBytes(msg.DelegatorAddress)
 	if err != nil {
-		return true, err
+		return err
 	}
 
 	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&banktypes.MsgSend{}))
@@ -128,25 +126,25 @@ func (azd AuthzDecorator) handleStakeAuthzRules(ctx sdk.Context, msg *stakingv1b
 			}
 
 			if !isAllowed {
-				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Validator is not in the allowed validators of the grant")
+				return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Validator is not in the allowed validators of the grant")
 			}
 		}
 
 		if rule.Key == authztypes.AllowedMaxStakeAmount {
 			limit, err := sdk.ParseCoinsNormalized(strings.Join(rule.Values, ","))
 			if err != nil {
-				return true, err
+				return err
 			}
 			amount, err := sdk.ParseCoinNormalized(msg.Amount.String())
 			if err != nil {
-				return true, err
+				return err
 			}
 
 			if !limit.IsAllGTE(sdk.NewCoins(amount)) {
-				return true, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Amount exceeds the max_amount limit set by the granter")
+				return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Amount exceeds the max_amount limit set by the granter")
 			}
 		}
 	}
 
-	return false, nil
+	return nil
 }

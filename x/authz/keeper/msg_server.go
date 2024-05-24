@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 	"errors"
+	"fmt"
+	"reflect"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -52,12 +54,69 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 		return nil, sdkerrors.ErrInvalidType.Wrapf("%s doesn't exist.", t)
 	}
 
-	err = k.SaveGrantWithRules(ctx, grantee, granter, authorization, msg.Grant.Expiration, msg.Rules)
+	if msg.Rules != nil {
+		err := k.VerifyTheRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration, msg.Rules)
 	if err != nil {
 		return nil, err
 	}
 
 	return &authz.MsgGrantResponse{}, nil
+}
+
+// VerifyTheRules checks the keys of rules provided are allowed
+func (k Keeper) VerifyTheRules(goCtx context.Context, msg string, rules []*authz.Rule) error {
+	registeredRules, err := k.GetAuthzRulesKeys(goCtx)
+	if err != nil {
+		return err
+	}
+
+	var values []string
+	for _, v := range registeredRules.Keys {
+		if v.Key == msg {
+			values = v.Values
+			break
+		}
+	}
+
+	if err := checkStructKeys(rules, values); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkStructKeys(s interface{}, allowedKeys []string) error {
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("expected a struct, but got %s", v.Kind())
+	}
+
+	t := v.Type()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if !isAllowedKey(field.Name, allowedKeys) {
+			return fmt.Errorf("field %s is not allowed", field.Name)
+		}
+	}
+	return nil
+}
+
+func isAllowedKey(key string, allowedKeys []string) bool {
+	for _, allowedKey := range allowedKeys {
+		if key == allowedKey {
+			return true
+		}
+	}
+	return false
 }
 
 // Revoke implements the MsgServer.Revoke method.

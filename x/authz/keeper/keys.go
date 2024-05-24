@@ -18,7 +18,7 @@ import (
 var (
 	GrantKey         = []byte{0x01} // prefix for each key
 	GrantQueuePrefix = []byte{0x02}
-	AuthzOptionsKeys = []byte{0x04}
+	AuthzOptionsKeys = []byte{0x03}
 )
 
 var lenTime = len(sdk.FormatTimeBytes(time.Now()))

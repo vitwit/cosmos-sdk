@@ -56,3 +56,8 @@ message GrantQueueItem {
   // msg_type_urls contains the list of TypeURL of a sdk.Msg.
   repeated string msg_type_urls = 1;
 }
+
+// AllowedGrantRulesKeys contains the keys allowed for each message.
+message AllowedGrantRulesKeys {
+  repeated cosmos.authz.v1beta1.Rule keys = 1;
+}

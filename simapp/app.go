@@ -3,6 +3,7 @@
 package simapp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -560,6 +561,27 @@ func NewSimApp(
 	}
 
 	return app
+}
+
+func (app *SimApp) RegisterUpgradeHandlers() {
+	// Upgrade handler for v2
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2",
+		func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			app.AuthzKeeper.SetAuthzRulesKeys(ctx, &authz.AllowedGrantRulesKeys{
+				Keys: []*authz.Rule{
+					&authz.Rule{Key: sdk.MsgTypeURL(&banktypes.MsgSend{}), Values: []string{
+						authz.MaxAmount, authz.AllowedRecipients,
+					}},
+					&authz.Rule{Key: sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}), Values: []string{
+						authz.AllowedStakeValidators, authz.AllowedMaxStakeAmount,
+					}},
+				},
+			})
+
+			return app.ModuleManager.RunMigrations(ctx, app.Configurator(), fromVM)
+		},
+	)
 }
 
 func (app *SimApp) setAnteHandler(txConfig client.TxConfig) {
