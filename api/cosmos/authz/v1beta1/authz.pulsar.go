@@ -3250,6 +3250,858 @@ func (x *fastReflection_AllowedGrantRulesKeys) ProtoMethods() *protoiface.Method
 	}
 }
 
+var _ protoreflect.List = (*_AppAuthzRules_1_list)(nil)
+
+type _AppAuthzRules_1_list struct {
+	list *[]string
+}
+
+func (x *_AppAuthzRules_1_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_AppAuthzRules_1_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_AppAuthzRules_1_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_AppAuthzRules_1_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_AppAuthzRules_1_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message AppAuthzRules at list field AllowedRecipients as it is not of Message kind"))
+}
+
+func (x *_AppAuthzRules_1_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_AppAuthzRules_1_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_AppAuthzRules_1_list) IsValid() bool {
+	return x.list != nil
+}
+
+var _ protoreflect.List = (*_AppAuthzRules_2_list)(nil)
+
+type _AppAuthzRules_2_list struct {
+	list *[]string
+}
+
+func (x *_AppAuthzRules_2_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_AppAuthzRules_2_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_AppAuthzRules_2_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_AppAuthzRules_2_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_AppAuthzRules_2_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message AppAuthzRules at list field MaxAmount as it is not of Message kind"))
+}
+
+func (x *_AppAuthzRules_2_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_AppAuthzRules_2_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_AppAuthzRules_2_list) IsValid() bool {
+	return x.list != nil
+}
+
+var _ protoreflect.List = (*_AppAuthzRules_3_list)(nil)
+
+type _AppAuthzRules_3_list struct {
+	list *[]string
+}
+
+func (x *_AppAuthzRules_3_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_AppAuthzRules_3_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_AppAuthzRules_3_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_AppAuthzRules_3_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_AppAuthzRules_3_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message AppAuthzRules at list field AllowedStakeValidators as it is not of Message kind"))
+}
+
+func (x *_AppAuthzRules_3_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_AppAuthzRules_3_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_AppAuthzRules_3_list) IsValid() bool {
+	return x.list != nil
+}
+
+var _ protoreflect.List = (*_AppAuthzRules_4_list)(nil)
+
+type _AppAuthzRules_4_list struct {
+	list *[]string
+}
+
+func (x *_AppAuthzRules_4_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_AppAuthzRules_4_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_AppAuthzRules_4_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_AppAuthzRules_4_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_AppAuthzRules_4_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message AppAuthzRules at list field AllowedMaxStakeAmount as it is not of Message kind"))
+}
+
+func (x *_AppAuthzRules_4_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_AppAuthzRules_4_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_AppAuthzRules_4_list) IsValid() bool {
+	return x.list != nil
+}
+
+var (
+	md_AppAuthzRules                          protoreflect.MessageDescriptor
+	fd_AppAuthzRules_allowed_recipients       protoreflect.FieldDescriptor
+	fd_AppAuthzRules_max_amount               protoreflect.FieldDescriptor
+	fd_AppAuthzRules_allowed_stake_validators protoreflect.FieldDescriptor
+	fd_AppAuthzRules_allowed_max_stake_amount protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_cosmos_authz_v1beta1_authz_proto_init()
+	md_AppAuthzRules = File_cosmos_authz_v1beta1_authz_proto.Messages().ByName("AppAuthzRules")
+	fd_AppAuthzRules_allowed_recipients = md_AppAuthzRules.Fields().ByName("allowed_recipients")
+	fd_AppAuthzRules_max_amount = md_AppAuthzRules.Fields().ByName("max_amount")
+	fd_AppAuthzRules_allowed_stake_validators = md_AppAuthzRules.Fields().ByName("allowed_stake_validators")
+	fd_AppAuthzRules_allowed_max_stake_amount = md_AppAuthzRules.Fields().ByName("allowed_max_stake_amount")
+}
+
+var _ protoreflect.Message = (*fastReflection_AppAuthzRules)(nil)
+
+type fastReflection_AppAuthzRules AppAuthzRules
+
+func (x *AppAuthzRules) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_AppAuthzRules)(x)
+}
+
+func (x *AppAuthzRules) slowProtoReflect() protoreflect.Message {
+	mi := &file_cosmos_authz_v1beta1_authz_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_AppAuthzRules_messageType fastReflection_AppAuthzRules_messageType
+var _ protoreflect.MessageType = fastReflection_AppAuthzRules_messageType{}
+
+type fastReflection_AppAuthzRules_messageType struct{}
+
+func (x fastReflection_AppAuthzRules_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_AppAuthzRules)(nil)
+}
+func (x fastReflection_AppAuthzRules_messageType) New() protoreflect.Message {
+	return new(fastReflection_AppAuthzRules)
+}
+func (x fastReflection_AppAuthzRules_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_AppAuthzRules
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_AppAuthzRules) Descriptor() protoreflect.MessageDescriptor {
+	return md_AppAuthzRules
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_AppAuthzRules) Type() protoreflect.MessageType {
+	return _fastReflection_AppAuthzRules_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_AppAuthzRules) New() protoreflect.Message {
+	return new(fastReflection_AppAuthzRules)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_AppAuthzRules) Interface() protoreflect.ProtoMessage {
+	return (*AppAuthzRules)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_AppAuthzRules) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.AllowedRecipients) != 0 {
+		value := protoreflect.ValueOfList(&_AppAuthzRules_1_list{list: &x.AllowedRecipients})
+		if !f(fd_AppAuthzRules_allowed_recipients, value) {
+			return
+		}
+	}
+	if len(x.MaxAmount) != 0 {
+		value := protoreflect.ValueOfList(&_AppAuthzRules_2_list{list: &x.MaxAmount})
+		if !f(fd_AppAuthzRules_max_amount, value) {
+			return
+		}
+	}
+	if len(x.AllowedStakeValidators) != 0 {
+		value := protoreflect.ValueOfList(&_AppAuthzRules_3_list{list: &x.AllowedStakeValidators})
+		if !f(fd_AppAuthzRules_allowed_stake_validators, value) {
+			return
+		}
+	}
+	if len(x.AllowedMaxStakeAmount) != 0 {
+		value := protoreflect.ValueOfList(&_AppAuthzRules_4_list{list: &x.AllowedMaxStakeAmount})
+		if !f(fd_AppAuthzRules_allowed_max_stake_amount, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_AppAuthzRules) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		return len(x.AllowedRecipients) != 0
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		return len(x.MaxAmount) != 0
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		return len(x.AllowedStakeValidators) != 0
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		return len(x.AllowedMaxStakeAmount) != 0
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_AppAuthzRules) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		x.AllowedRecipients = nil
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		x.MaxAmount = nil
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		x.AllowedStakeValidators = nil
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		x.AllowedMaxStakeAmount = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_AppAuthzRules) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		if len(x.AllowedRecipients) == 0 {
+			return protoreflect.ValueOfList(&_AppAuthzRules_1_list{})
+		}
+		listValue := &_AppAuthzRules_1_list{list: &x.AllowedRecipients}
+		return protoreflect.ValueOfList(listValue)
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		if len(x.MaxAmount) == 0 {
+			return protoreflect.ValueOfList(&_AppAuthzRules_2_list{})
+		}
+		listValue := &_AppAuthzRules_2_list{list: &x.MaxAmount}
+		return protoreflect.ValueOfList(listValue)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		if len(x.AllowedStakeValidators) == 0 {
+			return protoreflect.ValueOfList(&_AppAuthzRules_3_list{})
+		}
+		listValue := &_AppAuthzRules_3_list{list: &x.AllowedStakeValidators}
+		return protoreflect.ValueOfList(listValue)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		if len(x.AllowedMaxStakeAmount) == 0 {
+			return protoreflect.ValueOfList(&_AppAuthzRules_4_list{})
+		}
+		listValue := &_AppAuthzRules_4_list{list: &x.AllowedMaxStakeAmount}
+		return protoreflect.ValueOfList(listValue)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_AppAuthzRules) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		lv := value.List()
+		clv := lv.(*_AppAuthzRules_1_list)
+		x.AllowedRecipients = *clv.list
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		lv := value.List()
+		clv := lv.(*_AppAuthzRules_2_list)
+		x.MaxAmount = *clv.list
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		lv := value.List()
+		clv := lv.(*_AppAuthzRules_3_list)
+		x.AllowedStakeValidators = *clv.list
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		lv := value.List()
+		clv := lv.(*_AppAuthzRules_4_list)
+		x.AllowedMaxStakeAmount = *clv.list
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_AppAuthzRules) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		if x.AllowedRecipients == nil {
+			x.AllowedRecipients = []string{}
+		}
+		value := &_AppAuthzRules_1_list{list: &x.AllowedRecipients}
+		return protoreflect.ValueOfList(value)
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		if x.MaxAmount == nil {
+			x.MaxAmount = []string{}
+		}
+		value := &_AppAuthzRules_2_list{list: &x.MaxAmount}
+		return protoreflect.ValueOfList(value)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		if x.AllowedStakeValidators == nil {
+			x.AllowedStakeValidators = []string{}
+		}
+		value := &_AppAuthzRules_3_list{list: &x.AllowedStakeValidators}
+		return protoreflect.ValueOfList(value)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		if x.AllowedMaxStakeAmount == nil {
+			x.AllowedMaxStakeAmount = []string{}
+		}
+		value := &_AppAuthzRules_4_list{list: &x.AllowedMaxStakeAmount}
+		return protoreflect.ValueOfList(value)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_AppAuthzRules) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_recipients":
+		list := []string{}
+		return protoreflect.ValueOfList(&_AppAuthzRules_1_list{list: &list})
+	case "cosmos.authz.v1beta1.AppAuthzRules.max_amount":
+		list := []string{}
+		return protoreflect.ValueOfList(&_AppAuthzRules_2_list{list: &list})
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_stake_validators":
+		list := []string{}
+		return protoreflect.ValueOfList(&_AppAuthzRules_3_list{list: &list})
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
+		list := []string{}
+		return protoreflect.ValueOfList(&_AppAuthzRules_4_list{list: &list})
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
+		}
+		panic(fmt.Errorf("message cosmos.authz.v1beta1.AppAuthzRules does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_AppAuthzRules) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in cosmos.authz.v1beta1.AppAuthzRules", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_AppAuthzRules) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_AppAuthzRules) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_AppAuthzRules) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_AppAuthzRules) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*AppAuthzRules)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if len(x.AllowedRecipients) > 0 {
+			for _, s := range x.AllowedRecipients {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if len(x.MaxAmount) > 0 {
+			for _, s := range x.MaxAmount {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if len(x.AllowedStakeValidators) > 0 {
+			for _, s := range x.AllowedStakeValidators {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if len(x.AllowedMaxStakeAmount) > 0 {
+			for _, s := range x.AllowedMaxStakeAmount {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*AppAuthzRules)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.AllowedMaxStakeAmount) > 0 {
+			for iNdEx := len(x.AllowedMaxStakeAmount) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.AllowedMaxStakeAmount[iNdEx])
+				copy(dAtA[i:], x.AllowedMaxStakeAmount[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.AllowedMaxStakeAmount[iNdEx])))
+				i--
+				dAtA[i] = 0x22
+			}
+		}
+		if len(x.AllowedStakeValidators) > 0 {
+			for iNdEx := len(x.AllowedStakeValidators) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.AllowedStakeValidators[iNdEx])
+				copy(dAtA[i:], x.AllowedStakeValidators[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.AllowedStakeValidators[iNdEx])))
+				i--
+				dAtA[i] = 0x1a
+			}
+		}
+		if len(x.MaxAmount) > 0 {
+			for iNdEx := len(x.MaxAmount) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.MaxAmount[iNdEx])
+				copy(dAtA[i:], x.MaxAmount[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.MaxAmount[iNdEx])))
+				i--
+				dAtA[i] = 0x12
+			}
+		}
+		if len(x.AllowedRecipients) > 0 {
+			for iNdEx := len(x.AllowedRecipients) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.AllowedRecipients[iNdEx])
+				copy(dAtA[i:], x.AllowedRecipients[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.AllowedRecipients[iNdEx])))
+				i--
+				dAtA[i] = 0xa
+			}
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*AppAuthzRules)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: AppAuthzRules: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: AppAuthzRules: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AllowedRecipients", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.AllowedRecipients = append(x.AllowedRecipients, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxAmount", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.MaxAmount = append(x.MaxAmount, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AllowedStakeValidators", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.AllowedStakeValidators = append(x.AllowedStakeValidators, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			case 4:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AllowedMaxStakeAmount", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.AllowedMaxStakeAmount = append(x.AllowedMaxStakeAmount, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Since: cosmos-sdk 0.43
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
@@ -3538,6 +4390,66 @@ func (x *AllowedGrantRulesKeys) GetKeys() []*Rule {
 	return nil
 }
 
+// AppAuthzRules is rules passed to the authz app.
+type AppAuthzRules struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AllowedRecipients      []string `protobuf:"bytes,1,rep,name=allowed_recipients,json=allowedRecipients,proto3" json:"allowed_recipients,omitempty"`
+	MaxAmount              []string `protobuf:"bytes,2,rep,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	AllowedStakeValidators []string `protobuf:"bytes,3,rep,name=allowed_stake_validators,json=allowedStakeValidators,proto3" json:"allowed_stake_validators,omitempty"`
+	AllowedMaxStakeAmount  []string `protobuf:"bytes,4,rep,name=allowed_max_stake_amount,json=allowedMaxStakeAmount,proto3" json:"allowed_max_stake_amount,omitempty"`
+}
+
+func (x *AppAuthzRules) Reset() {
+	*x = AppAuthzRules{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_cosmos_authz_v1beta1_authz_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *AppAuthzRules) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppAuthzRules) ProtoMessage() {}
+
+// Deprecated: Use AppAuthzRules.ProtoReflect.Descriptor instead.
+func (*AppAuthzRules) Descriptor() ([]byte, []int) {
+	return file_cosmos_authz_v1beta1_authz_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *AppAuthzRules) GetAllowedRecipients() []string {
+	if x != nil {
+		return x.AllowedRecipients
+	}
+	return nil
+}
+
+func (x *AppAuthzRules) GetMaxAmount() []string {
+	if x != nil {
+		return x.MaxAmount
+	}
+	return nil
+}
+
+func (x *AppAuthzRules) GetAllowedStakeValidators() []string {
+	if x != nil {
+		return x.AllowedStakeValidators
+	}
+	return nil
+}
+
+func (x *AppAuthzRules) GetAllowedMaxStakeAmount() []string {
+	if x != nil {
+		return x.AllowedMaxStakeAmount
+	}
+	return nil
+}
+
 var File_cosmos_authz_v1beta1_authz_proto protoreflect.FileDescriptor
 
 var file_cosmos_authz_v1beta1_authz_proto_rawDesc = []byte{
@@ -3605,21 +4517,34 @@ var file_cosmos_authz_v1beta1_authz_proto_rawDesc = []byte{
 	0x74, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x4b, 0x65, 0x79, 0x73, 0x12, 0x2e, 0x0a, 0x04, 0x6b, 0x65,
 	0x79, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x52, 0x75, 0x6c, 0x65, 0x52, 0x04, 0x6b, 0x65, 0x79, 0x73, 0x42, 0xd0, 0x01, 0x0a, 0x18, 0x63,
-	0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x50, 0x72,
-	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b,
-	0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x61,
-	0x75, 0x74, 0x68, 0x7a, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x61, 0x75, 0x74,
-	0x68, 0x7a, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x41, 0x58, 0xaa,
-	0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x2e, 0x56,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c,
-	0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20,
-	0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
-	0xea, 0x02, 0x16, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x41, 0x75, 0x74, 0x68, 0x7a,
-	0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xc8, 0xe1, 0x1e, 0x00, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x75, 0x6c, 0x65, 0x52, 0x04, 0x6b, 0x65, 0x79, 0x73, 0x22, 0xd0, 0x01, 0x0a, 0x0d, 0x41,
+	0x70, 0x70, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x12, 0x2d, 0x0a, 0x12,
+	0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f, 0x72, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e,
+	0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x11, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65,
+	0x64, 0x52, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x1d, 0x0a, 0x0a, 0x6d,
+	0x61, 0x78, 0x5f, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52,
+	0x09, 0x6d, 0x61, 0x78, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x18, 0x61, 0x6c,
+	0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x5f, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x16, 0x61, 0x6c,
+	0x6c, 0x6f, 0x77, 0x65, 0x64, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x73, 0x12, 0x37, 0x0a, 0x18, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f,
+	0x6d, 0x61, 0x78, 0x5f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x5f, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74,
+	0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x15, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x4d,
+	0x61, 0x78, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0xd0, 0x01,
+	0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x61, 0x75, 0x74,
+	0x68, 0x7a, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x41, 0x75, 0x74, 0x68,
+	0x7a, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2f, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b,
+	0x61, 0x75, 0x74, 0x68, 0x7a, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x43,
+	0x41, 0x58, 0xaa, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68,
+	0x7a, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0xe2, 0x02, 0x20, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64,
+	0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x41, 0x75,
+	0x74, 0x68, 0x7a, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xc8, 0xe1, 0x1e, 0x00,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -3634,7 +4559,7 @@ func file_cosmos_authz_v1beta1_authz_proto_rawDescGZIP() []byte {
 	return file_cosmos_authz_v1beta1_authz_proto_rawDescData
 }
 
-var file_cosmos_authz_v1beta1_authz_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_cosmos_authz_v1beta1_authz_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_cosmos_authz_v1beta1_authz_proto_goTypes = []interface{}{
 	(*GenericAuthorization)(nil),  // 0: cosmos.authz.v1beta1.GenericAuthorization
 	(*Grant)(nil),                 // 1: cosmos.authz.v1beta1.Grant
@@ -3642,15 +4567,16 @@ var file_cosmos_authz_v1beta1_authz_proto_goTypes = []interface{}{
 	(*GrantAuthorization)(nil),    // 3: cosmos.authz.v1beta1.GrantAuthorization
 	(*GrantQueueItem)(nil),        // 4: cosmos.authz.v1beta1.GrantQueueItem
 	(*AllowedGrantRulesKeys)(nil), // 5: cosmos.authz.v1beta1.AllowedGrantRulesKeys
-	(*anypb.Any)(nil),             // 6: google.protobuf.Any
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*AppAuthzRules)(nil),         // 6: cosmos.authz.v1beta1.AppAuthzRules
+	(*anypb.Any)(nil),             // 7: google.protobuf.Any
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_cosmos_authz_v1beta1_authz_proto_depIdxs = []int32{
-	6, // 0: cosmos.authz.v1beta1.Grant.authorization:type_name -> google.protobuf.Any
-	7, // 1: cosmos.authz.v1beta1.Grant.expiration:type_name -> google.protobuf.Timestamp
+	7, // 0: cosmos.authz.v1beta1.Grant.authorization:type_name -> google.protobuf.Any
+	8, // 1: cosmos.authz.v1beta1.Grant.expiration:type_name -> google.protobuf.Timestamp
 	2, // 2: cosmos.authz.v1beta1.Grant.rules:type_name -> cosmos.authz.v1beta1.Rule
-	6, // 3: cosmos.authz.v1beta1.GrantAuthorization.authorization:type_name -> google.protobuf.Any
-	7, // 4: cosmos.authz.v1beta1.GrantAuthorization.expiration:type_name -> google.protobuf.Timestamp
+	7, // 3: cosmos.authz.v1beta1.GrantAuthorization.authorization:type_name -> google.protobuf.Any
+	8, // 4: cosmos.authz.v1beta1.GrantAuthorization.expiration:type_name -> google.protobuf.Timestamp
 	2, // 5: cosmos.authz.v1beta1.AllowedGrantRulesKeys.keys:type_name -> cosmos.authz.v1beta1.Rule
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
@@ -3737,6 +4663,18 @@ func file_cosmos_authz_v1beta1_authz_proto_init() {
 				return nil
 			}
 		}
+		file_cosmos_authz_v1beta1_authz_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AppAuthzRules); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3744,7 +4682,7 @@ func file_cosmos_authz_v1beta1_authz_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_cosmos_authz_v1beta1_authz_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -9,9 +10,11 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 var _ authz.MsgServer = Keeper{}
@@ -54,14 +57,16 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 		return nil, sdkerrors.ErrInvalidType.Wrapf("%s doesn't exist.", t)
 	}
 
+	var rules []*authz.Rule
 	if msg.Rules != nil {
-		err := k.VerifyTheRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
+		var err error
+		err, rules = k.VerifyAndBuildRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration, msg.Rules)
+	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration, rules)
 	if err != nil {
 		return nil, err
 	}
@@ -70,10 +75,31 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 }
 
 // VerifyTheRules checks the keys of rules provided are allowed
-func (k Keeper) VerifyTheRules(goCtx context.Context, msg string, rules []*authz.Rule) error {
+func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesBytes []byte) (error, []*authz.Rule) {
+	var rulesJson authz.AppAuthzRules
+	err := json.Unmarshal(rulesBytes, &rulesJson)
+	if err != nil {
+		return err, nil
+	}
+
+	var rules []*authz.Rule
+	switch msg {
+	case sdk.MsgTypeURL(&bankv1beta1.MsgSend{}):
+		rules = []*authz.Rule{
+			{Key: authz.AllowedRecipients, Values: rulesJson.AllowedRecipients},
+			{Key: authz.MaxAmount, Values: rulesJson.MaxAmount},
+		}
+
+	case sdk.MsgTypeURL(&staking.MsgDelegate{}):
+		rules = []*authz.Rule{
+			{Key: authz.AllowedStakeValidators, Values: rulesJson.AllowedStakeValidators},
+			{Key: authz.AllowedMaxStakeAmount, Values: rulesJson.AllowedMaxStakeAmount},
+		}
+	}
+
 	registeredRules, err := k.GetAuthzRulesKeys(goCtx)
 	if err != nil {
-		return err
+		return err, nil
 	}
 
 	var values []string
@@ -85,10 +111,10 @@ func (k Keeper) VerifyTheRules(goCtx context.Context, msg string, rules []*authz
 	}
 
 	if err := checkStructKeys(rules, values); err != nil {
-		return err
+		return err, nil
 	}
 
-	return nil
+	return nil, rules
 }
 
 func checkStructKeys(s interface{}, allowedKeys []string) error {

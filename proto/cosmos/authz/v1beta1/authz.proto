@@ -61,3 +61,11 @@ message GrantQueueItem {
 message AllowedGrantRulesKeys {
   repeated cosmos.authz.v1beta1.Rule keys = 1;
 }
+
+// AppAuthzRules is rules passed to the authz app.
+message AppAuthzRules {
+  repeated string allowed_recipients       = 1;
+  repeated string max_amount               = 2;
+  repeated string allowed_stake_validators = 3;
+  repeated string allowed_max_stake_amount = 4;
+}

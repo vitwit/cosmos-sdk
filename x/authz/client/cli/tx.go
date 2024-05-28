@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
 	"cosmossdk.io/core/address"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -218,12 +216,7 @@ Examples:
 					return err
 				}
 
-				rules, err := buildRules(args[1], contents)
-				if err != nil {
-					return err
-				}
-
-				msg.SetAuthzRules(rules)
+				msg.SetAuthzRules(contents)
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -238,38 +231,6 @@ Examples:
 	cmd.Flags().Int64(FlagExpiration, 0, "Expire time as Unix timestamp. Set zero (0) for no expiry. Default is 0.")
 	cmd.Flags().String(FlagAuthzRules, "", "Rules are conditions to be satisfied when the grant is executed")
 	return cmd
-}
-
-func buildRules(msg string, rulesBytes []byte) ([]*authz.Rule, error) {
-	type internalRules struct {
-		AllowedRecipients      []string `json:"allowed_recepients"`
-		MaxAmount              []string `json:"max_amount"`
-		AllowedStakeValidators []string `json:"allowed_stake_validators"`
-		AllowedMaxStakeAmount  []string `json:"allowed_max_stake_amount"`
-	}
-
-	var rulesJson internalRules
-	err := json.Unmarshal(rulesBytes, &rulesJson)
-	if err != nil {
-		return nil, err
-	}
-
-	switch msg {
-	case sdk.MsgTypeURL(&bankv1beta1.MsgSend{}):
-		return []*authz.Rule{
-			{Key: authz.AllowedRecipients, Values: rulesJson.AllowedRecipients},
-			{Key: authz.MaxAmount, Values: rulesJson.MaxAmount},
-		}, nil
-
-	case sdk.MsgTypeURL(&staking.MsgDelegate{}):
-		return []*authz.Rule{
-			{Key: authz.AllowedStakeValidators, Values: rulesJson.AllowedStakeValidators},
-			{Key: authz.AllowedMaxStakeAmount, Values: rulesJson.AllowedMaxStakeAmount},
-		}, nil
-
-	default:
-		return []*authz.Rule{}, nil
-	}
 }
 
 func getExpireTime(cmd *cobra.Command) (*time.Time, error) {

@@ -44,7 +44,7 @@ message MsgGrant {
   cosmos.authz.v1beta1.Grant grant = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 
   // rules are conditions to execute the grant.
-  repeated cosmos.authz.v1beta1.Rule rules = 4;
+  bytes rules = 4;
 }
 
 // MsgGrantResponse defines the Msg/MsgGrant response type.
