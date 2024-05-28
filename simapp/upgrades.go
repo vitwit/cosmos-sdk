@@ -7,7 +7,11 @@ import (
 	circuittypes "cosmossdk.io/x/circuit/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the sample SimApp upgrade
@@ -22,6 +26,24 @@ func (app SimApp) RegisterUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		UpgradeName,
 		func(ctx context.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			return app.ModuleManager.RunMigrations(ctx, app.Configurator(), fromVM)
+		},
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2",
+		func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			app.AuthzKeeper.SetAuthzRulesKeys(ctx, &authz.AllowedGrantRulesKeys{
+				Keys: []*authz.Rule{
+					&authz.Rule{Key: sdk.MsgTypeURL(&banktypes.MsgSend{}), Values: []string{
+						authz.MaxAmount, authz.AllowedRecipients,
+					}},
+					&authz.Rule{Key: sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}), Values: []string{
+						authz.AllowedStakeValidators, authz.AllowedMaxStakeAmount,
+					}},
+				},
+			})
+
 			return app.ModuleManager.RunMigrations(ctx, app.Configurator(), fromVM)
 		},
 	)
