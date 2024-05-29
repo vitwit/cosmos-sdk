@@ -3,13 +3,14 @@ package ante
 import (
 	"strings"
 
-	stakingv1beta1 "cosmossdk.io/api/cosmos/staking/v1beta1"
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	stakingv1beta1 "cosmossdk.io/api/cosmos/staking/v1beta1"
+	errorsmod "cosmossdk.io/errors"
 )
 
 type AuthzDecorator struct {
