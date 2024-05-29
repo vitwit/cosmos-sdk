@@ -60,7 +60,7 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 	var rules []*authz.Rule
 	if msg.Rules != nil {
 		var err error
-		err, rules = k.VerifyAndBuildRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
+		rules, err = k.VerifyAndBuildRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
 		if err != nil {
 			return nil, err
 		}
@@ -75,11 +75,32 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 }
 
 // VerifyTheRules checks the keys of rules provided are allowed
-func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesBytes []byte) (error, []*authz.Rule) {
+func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesBytes []byte) ([]*authz.Rule, error) {
 	var rulesJson authz.AppAuthzRules
 	err := json.Unmarshal(rulesBytes, &rulesJson)
 	if err != nil {
-		return err, nil
+		return nil, err
+	}
+
+	if err := validateRules(rulesJson); err != nil {
+		return nil, err
+	}
+
+	registeredRules, err := k.GetAuthzRulesKeys(goCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	var values []string
+	for _, v := range registeredRules.Keys {
+		if v.Key == msg {
+			values = v.Values
+			break
+		}
+	}
+
+	if err := checkStructKeys(rulesJson, values); err != nil {
+		return nil, err
 	}
 
 	var rules []*authz.Rule
@@ -97,24 +118,7 @@ func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesByte
 		}
 	}
 
-	registeredRules, err := k.GetAuthzRulesKeys(goCtx)
-	if err != nil {
-		return err, nil
-	}
-
-	var values []string
-	for _, v := range registeredRules.Keys {
-		if v.Key == msg {
-			values = v.Values
-			break
-		}
-	}
-
-	if err := checkStructKeys(rules, values); err != nil {
-		return err, nil
-	}
-
-	return nil, rules
+	return rules, nil
 }
 
 func checkStructKeys(s interface{}, allowedKeys []string) error {
@@ -143,6 +147,40 @@ func isAllowedKey(key string, allowedKeys []string) bool {
 		}
 	}
 	return false
+}
+
+func validateRules(rules authz.AppAuthzRules) error {
+	for _, addr := range rules.AllowedRecipients {
+		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
+			return err
+		}
+	}
+
+	coins, err := sdk.ParseCoinsNormalized(strings.Join(rules.MaxAmount, ","))
+	if err != nil {
+		return err
+	}
+
+	if err := coins.Sort().Validate(); err != nil {
+		return err
+	}
+
+	for _, valAddr := range rules.AllowedStakeValidators {
+		if _, err := sdk.ValAddressFromBech32(valAddr); err != nil {
+			return err
+		}
+	}
+
+	maxStake, err := sdk.ParseCoinsNormalized(strings.Join(rules.AllowedMaxStakeAmount, ","))
+	if err != nil {
+		return err
+	}
+
+	if err := maxStake.Sort().Validate(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Revoke implements the MsgServer.Revoke method.
