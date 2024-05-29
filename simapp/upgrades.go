@@ -35,10 +35,10 @@ func (app SimApp) RegisterUpgradeHandlers() {
 		func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			app.AuthzKeeper.SetAuthzRulesKeys(ctx, &authz.AllowedGrantRulesKeys{
 				Keys: []*authz.Rule{
-					&authz.Rule{Key: sdk.MsgTypeURL(&banktypes.MsgSend{}), Values: []string{
+					{Key: sdk.MsgTypeURL(&banktypes.MsgSend{}), Values: []string{
 						authz.MaxAmount, authz.AllowedRecipients,
 					}},
-					&authz.Rule{Key: sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}), Values: []string{
+					{Key: sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}), Values: []string{
 						authz.AllowedStakeValidators, authz.AllowedMaxStakeAmount,
 					}},
 				},
