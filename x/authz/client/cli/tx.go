@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -32,6 +33,7 @@ const (
 	delegate              = "delegate"
 	redelegate            = "redelegate"
 	unbond                = "unbond"
+	FlagAuthzRules        = "authz-rules"
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -203,6 +205,20 @@ Examples:
 				return err
 			}
 
+			rules, err := cmd.Flags().GetString(FlagAuthzRules)
+			if err != nil {
+				return err
+			}
+
+			if rules != "" {
+				contents, err := os.ReadFile(rules)
+				if err != nil {
+					return err
+				}
+
+				msg.SetAuthzRules(contents)
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -213,6 +229,7 @@ Examples:
 	cmd.Flags().StringSlice(FlagDenyValidators, []string{}, "Deny validators addresses separated by ,")
 	cmd.Flags().StringSlice(FlagAllowList, []string{}, "Allowed addresses grantee is allowed to send funds separated by ,")
 	cmd.Flags().Int64(FlagExpiration, 0, "Expire time as Unix timestamp. Set zero (0) for no expiry. Default is 0.")
+	cmd.Flags().String(FlagAuthzRules, "", "Rules are conditions to be satisfied when the grant is executed")
 	return cmd
 }
 

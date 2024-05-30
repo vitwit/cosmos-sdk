@@ -2,14 +2,19 @@ package keeper
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"reflect"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 
+	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 var _ authz.MsgServer = Keeper{}
@@ -52,12 +57,130 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 		return nil, sdkerrors.ErrInvalidType.Wrapf("%s doesn't exist.", t)
 	}
 
-	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration)
+	var rules []*authz.Rule
+	if msg.Rules != nil {
+		var err error
+		rules, err = k.VerifyAndBuildRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = k.SaveGrant(ctx, grantee, granter, authorization, msg.Grant.Expiration, rules)
 	if err != nil {
 		return nil, err
 	}
 
 	return &authz.MsgGrantResponse{}, nil
+}
+
+// VerifyTheRules checks the keys of rules provided are allowed
+func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesBytes []byte) ([]*authz.Rule, error) {
+	var rulesJson authz.AppAuthzRules
+	err := json.Unmarshal(rulesBytes, &rulesJson)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := validateRules(rulesJson); err != nil {
+		return nil, err
+	}
+
+	registeredRules, err := k.GetAuthzRulesKeys(goCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	var values []string
+	for _, v := range registeredRules.Keys {
+		if v.Key == msg {
+			values = v.Values
+			break
+		}
+	}
+
+	if err := checkStructKeys(rulesJson, values); err != nil {
+		return nil, err
+	}
+
+	var rules []*authz.Rule
+	switch msg {
+	case sdk.MsgTypeURL(&bankv1beta1.MsgSend{}):
+		rules = []*authz.Rule{
+			{Key: authz.AllowedRecipients, Values: rulesJson.AllowedRecipients},
+			{Key: authz.MaxAmount, Values: rulesJson.MaxAmount},
+		}
+
+	case sdk.MsgTypeURL(&staking.MsgDelegate{}):
+		rules = []*authz.Rule{
+			{Key: authz.AllowedStakeValidators, Values: rulesJson.AllowedStakeValidators},
+			{Key: authz.AllowedMaxStakeAmount, Values: rulesJson.AllowedMaxStakeAmount},
+		}
+	}
+
+	return rules, nil
+}
+
+func checkStructKeys(s interface{}, allowedKeys []string) error {
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("expected a struct, but got %s", v.Kind())
+	}
+
+	t := v.Type()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if !isAllowedKey(field.Name, allowedKeys) {
+			return fmt.Errorf("field %s is not allowed", field.Name)
+		}
+	}
+	return nil
+}
+
+func isAllowedKey(key string, allowedKeys []string) bool {
+	for _, allowedKey := range allowedKeys {
+		if key == allowedKey {
+			return true
+		}
+	}
+	return false
+}
+
+func validateRules(rules authz.AppAuthzRules) error {
+	for _, addr := range rules.AllowedRecipients {
+		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
+			return err
+		}
+	}
+
+	coins, err := sdk.ParseCoinsNormalized(strings.Join(rules.MaxAmount, ","))
+	if err != nil {
+		return err
+	}
+
+	if err := coins.Sort().Validate(); err != nil {
+		return err
+	}
+
+	for _, valAddr := range rules.AllowedStakeValidators {
+		if _, err := sdk.ValAddressFromBech32(valAddr); err != nil {
+			return err
+		}
+	}
+
+	maxStake, err := sdk.ParseCoinsNormalized(strings.Join(rules.AllowedMaxStakeAmount, ","))
+	if err != nil {
+		return err
+	}
+
+	if err := maxStake.Sort().Validate(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Revoke implements the MsgServer.Revoke method.

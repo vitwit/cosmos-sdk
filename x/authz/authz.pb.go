@@ -78,6 +78,8 @@ type Grant struct {
 	// doesn't have a time expiration (other conditions  in `authorization`
 	// may apply to invalidate the grant)
 	Expiration *time.Time `protobuf:"bytes,2,opt,name=expiration,proto3,stdtime" json:"expiration,omitempty"`
+	// rules are conditions to execute the grant.
+	Rules []*Rule `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
 }
 
 func (m *Grant) Reset()         { *m = Grant{} }
@@ -113,6 +115,45 @@ func (m *Grant) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Grant proto.InternalMessageInfo
 
+// rules are conditions to execute the grant.
+type Rule struct {
+	Key    string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Values []string `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+}
+
+func (m *Rule) Reset()         { *m = Rule{} }
+func (m *Rule) String() string { return proto.CompactTextString(m) }
+func (*Rule) ProtoMessage()    {}
+func (*Rule) Descriptor() ([]byte, []int) {
+	return fileDescriptor_544dc2e84b61c637, []int{2}
+}
+func (m *Rule) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Rule) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Rule.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Rule) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Rule.Merge(m, src)
+}
+func (m *Rule) XXX_Size() int {
+	return m.Size()
+}
+func (m *Rule) XXX_DiscardUnknown() {
+	xxx_messageInfo_Rule.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Rule proto.InternalMessageInfo
+
 // GrantAuthorization extends a grant with both the addresses of the grantee and granter.
 // It is used in genesis.proto and query.proto
 type GrantAuthorization struct {
@@ -126,7 +167,7 @@ func (m *GrantAuthorization) Reset()         { *m = GrantAuthorization{} }
 func (m *GrantAuthorization) String() string { return proto.CompactTextString(m) }
 func (*GrantAuthorization) ProtoMessage()    {}
 func (*GrantAuthorization) Descriptor() ([]byte, []int) {
-	return fileDescriptor_544dc2e84b61c637, []int{2}
+	return fileDescriptor_544dc2e84b61c637, []int{3}
 }
 func (m *GrantAuthorization) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -165,7 +206,7 @@ func (m *GrantQueueItem) Reset()         { *m = GrantQueueItem{} }
 func (m *GrantQueueItem) String() string { return proto.CompactTextString(m) }
 func (*GrantQueueItem) ProtoMessage()    {}
 func (*GrantQueueItem) Descriptor() ([]byte, []int) {
-	return fileDescriptor_544dc2e84b61c637, []int{3}
+	return fileDescriptor_544dc2e84b61c637, []int{4}
 }
 func (m *GrantQueueItem) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -194,45 +235,138 @@ func (m *GrantQueueItem) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GrantQueueItem proto.InternalMessageInfo
 
+// AllowedGrantRulesKeys contains the keys allowed for each message.
+type AllowedGrantRulesKeys struct {
+	Keys []*Rule `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
+}
+
+func (m *AllowedGrantRulesKeys) Reset()         { *m = AllowedGrantRulesKeys{} }
+func (m *AllowedGrantRulesKeys) String() string { return proto.CompactTextString(m) }
+func (*AllowedGrantRulesKeys) ProtoMessage()    {}
+func (*AllowedGrantRulesKeys) Descriptor() ([]byte, []int) {
+	return fileDescriptor_544dc2e84b61c637, []int{5}
+}
+func (m *AllowedGrantRulesKeys) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AllowedGrantRulesKeys) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AllowedGrantRulesKeys.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AllowedGrantRulesKeys) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllowedGrantRulesKeys.Merge(m, src)
+}
+func (m *AllowedGrantRulesKeys) XXX_Size() int {
+	return m.Size()
+}
+func (m *AllowedGrantRulesKeys) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllowedGrantRulesKeys.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllowedGrantRulesKeys proto.InternalMessageInfo
+
+// AppAuthzRules is rules passed to the authz app.
+type AppAuthzRules struct {
+	AllowedRecipients      []string `protobuf:"bytes,1,rep,name=allowed_recipients,json=allowedRecipients,proto3" json:"allowed_recipients,omitempty"`
+	MaxAmount              []string `protobuf:"bytes,2,rep,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	AllowedStakeValidators []string `protobuf:"bytes,3,rep,name=allowed_stake_validators,json=allowedStakeValidators,proto3" json:"allowed_stake_validators,omitempty"`
+	AllowedMaxStakeAmount  []string `protobuf:"bytes,4,rep,name=allowed_max_stake_amount,json=allowedMaxStakeAmount,proto3" json:"allowed_max_stake_amount,omitempty"`
+}
+
+func (m *AppAuthzRules) Reset()         { *m = AppAuthzRules{} }
+func (m *AppAuthzRules) String() string { return proto.CompactTextString(m) }
+func (*AppAuthzRules) ProtoMessage()    {}
+func (*AppAuthzRules) Descriptor() ([]byte, []int) {
+	return fileDescriptor_544dc2e84b61c637, []int{6}
+}
+func (m *AppAuthzRules) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AppAuthzRules) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AppAuthzRules.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AppAuthzRules) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AppAuthzRules.Merge(m, src)
+}
+func (m *AppAuthzRules) XXX_Size() int {
+	return m.Size()
+}
+func (m *AppAuthzRules) XXX_DiscardUnknown() {
+	xxx_messageInfo_AppAuthzRules.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AppAuthzRules proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*GenericAuthorization)(nil), "cosmos.authz.v1beta1.GenericAuthorization")
 	proto.RegisterType((*Grant)(nil), "cosmos.authz.v1beta1.Grant")
+	proto.RegisterType((*Rule)(nil), "cosmos.authz.v1beta1.Rule")
 	proto.RegisterType((*GrantAuthorization)(nil), "cosmos.authz.v1beta1.GrantAuthorization")
 	proto.RegisterType((*GrantQueueItem)(nil), "cosmos.authz.v1beta1.GrantQueueItem")
+	proto.RegisterType((*AllowedGrantRulesKeys)(nil), "cosmos.authz.v1beta1.AllowedGrantRulesKeys")
+	proto.RegisterType((*AppAuthzRules)(nil), "cosmos.authz.v1beta1.AppAuthzRules")
 }
 
 func init() { proto.RegisterFile("cosmos/authz/v1beta1/authz.proto", fileDescriptor_544dc2e84b61c637) }
 
 var fileDescriptor_544dc2e84b61c637 = []byte{
-	// 446 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0x3f, 0x8f, 0xd3, 0x30,
-	0x18, 0xc6, 0xe3, 0xeb, 0xf1, 0xe7, 0x7c, 0x3a, 0x04, 0x51, 0x86, 0xd2, 0x21, 0xa9, 0x22, 0x84,
-	0x4e, 0x48, 0x8d, 0x75, 0x07, 0x13, 0x13, 0x8d, 0x90, 0x4e, 0xb0, 0x11, 0x8e, 0x85, 0xa5, 0x72,
-	0x5a, 0xe3, 0x5a, 0xd4, 0x71, 0x64, 0x3b, 0xe8, 0x72, 0x1f, 0x81, 0xe9, 0x3e, 0x03, 0x9f, 0x00,
-	0xa4, 0x7e, 0x88, 0x8a, 0xa9, 0x62, 0x62, 0xe2, 0x4f, 0x3b, 0xf0, 0x35, 0x50, 0xed, 0x44, 0x34,
-	0xb4, 0x12, 0x1d, 0x58, 0x22, 0xdb, 0xef, 0xf3, 0xbc, 0xef, 0x93, 0x5f, 0x62, 0xd8, 0x1d, 0x0a,
-	0xc5, 0x85, 0x42, 0xb8, 0xd0, 0xe3, 0x4b, 0xf4, 0xee, 0x24, 0x25, 0x1a, 0x9f, 0xd8, 0x5d, 0x94,
-	0x4b, 0xa1, 0x85, 0xeb, 0x59, 0x45, 0x64, 0xcf, 0x2a, 0x45, 0xe7, 0x0e, 0xe6, 0x2c, 0x13, 0xc8,
-	0x3c, 0xad, 0xb0, 0x73, 0xd7, 0x0a, 0x07, 0x66, 0x87, 0x2a, 0x97, 0x2d, 0x05, 0x54, 0x08, 0x3a,
-	0x21, 0xc8, 0xec, 0xd2, 0xe2, 0x0d, 0xd2, 0x8c, 0x13, 0xa5, 0x31, 0xcf, 0x2b, 0x81, 0x47, 0x05,
-	0x15, 0xd6, 0xb8, 0x5a, 0xd5, 0x1d, 0xff, 0xb6, 0xe1, 0xac, 0xb4, 0xa5, 0x50, 0x43, 0xef, 0x8c,
-	0x64, 0x44, 0xb2, 0x61, 0xbf, 0xd0, 0x63, 0x21, 0xd9, 0x25, 0xd6, 0x4c, 0x64, 0xee, 0x6d, 0xd8,
-	0xe2, 0x8a, 0xb6, 0x41, 0x17, 0x1c, 0x1f, 0x24, 0xab, 0xe5, 0xe3, 0xe7, 0x9f, 0xa7, 0xbd, 0x70,
-	0xdb, 0x3b, 0x44, 0x0d, 0xe7, 0xfb, 0x5f, 0x1f, 0x1f, 0x04, 0x56, 0xd6, 0x53, 0xa3, 0xb7, 0x68,
-	0x5b, 0xf7, 0xf0, 0x13, 0x80, 0xd7, 0xce, 0x24, 0xce, 0xb4, 0x9b, 0xc2, 0x23, 0xbc, 0x5e, 0x32,
-	0x13, 0x0f, 0x4f, 0xbd, 0xc8, 0x46, 0x8e, 0xea, 0xc8, 0x51, 0x3f, 0x2b, 0xe3, 0xfb, 0xbb, 0x45,
-	0x48, 0x9a, 0x2d, 0xdd, 0xa7, 0x10, 0x92, 0x8b, 0x9c, 0x49, 0x3b, 0x60, 0xcf, 0x0c, 0xe8, 0x6c,
-	0x0c, 0x38, 0xaf, 0x51, 0xc6, 0x37, 0x67, 0xdf, 0x02, 0x70, 0xf5, 0x3d, 0x00, 0xc9, 0x9a, 0x2f,
-	0xfc, 0xb0, 0x07, 0x5d, 0x93, 0xb9, 0x09, 0xea, 0x14, 0xde, 0xa0, 0xab, 0x53, 0x22, 0x2d, 0xac,
-	0xb8, 0xfd, 0x65, 0xda, 0xab, 0xbf, 0x75, 0x7f, 0x34, 0x92, 0x44, 0xa9, 0x97, 0x5a, 0xb2, 0x8c,
-	0x26, 0xb5, 0xf0, 0x8f, 0x87, 0x98, 0x34, 0x3b, 0x78, 0xc8, 0x26, 0xa8, 0xd6, 0xff, 0x07, 0xf5,
-	0xa4, 0x01, 0x6a, 0xff, 0x9f, 0xa0, 0xf6, 0x37, 0x20, 0x3d, 0x82, 0xb7, 0x0c, 0xa3, 0x17, 0x05,
-	0x29, 0xc8, 0x33, 0x4d, 0xb8, 0x1b, 0xc2, 0x23, 0xae, 0xe8, 0x40, 0x97, 0x39, 0x19, 0x14, 0x72,
-	0xa2, 0xda, 0xa0, 0xdb, 0x3a, 0x3e, 0x48, 0x0e, 0xb9, 0xa2, 0xe7, 0x65, 0x4e, 0x5e, 0xc9, 0x89,
-	0x8a, 0xe3, 0xd9, 0x4f, 0xdf, 0x99, 0x2d, 0x7c, 0x30, 0x5f, 0xf8, 0xe0, 0xc7, 0xc2, 0x07, 0x57,
-	0x4b, 0xdf, 0x99, 0x2f, 0x7d, 0xe7, 0xeb, 0xd2, 0x77, 0x5e, 0xdf, 0xa3, 0x4c, 0x8f, 0x8b, 0x34,
-	0x1a, 0x0a, 0x5e, 0xdd, 0x06, 0xb4, 0xf6, 0x7f, 0x5d, 0xd8, 0x4b, 0x96, 0x5e, 0x37, 0xf9, 0x1e,
-	0xfe, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x50, 0x89, 0xaf, 0x02, 0x89, 0x03, 0x00, 0x00,
+	// 623 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xcd, 0x6e, 0xd3, 0x4c,
+	0x14, 0x8d, 0x9b, 0xb4, 0xdf, 0x97, 0xa9, 0x8a, 0xe8, 0x28, 0xad, 0x4c, 0x25, 0x9c, 0xc8, 0x42,
+	0xa8, 0x42, 0x8a, 0xdd, 0x16, 0x24, 0x10, 0x2b, 0x1c, 0x21, 0x55, 0x80, 0x58, 0xe0, 0x16, 0x16,
+	0x6c, 0xac, 0x49, 0x72, 0x71, 0xad, 0x78, 0x3c, 0xd6, 0xcc, 0xb8, 0xc4, 0x7d, 0x04, 0x56, 0x7d,
+	0x06, 0x9e, 0x80, 0x45, 0x1f, 0xa2, 0x62, 0x55, 0xb1, 0x62, 0xc5, 0x4f, 0xb3, 0xe0, 0x35, 0x90,
+	0x67, 0xec, 0xb6, 0x69, 0x23, 0xe8, 0x82, 0x8d, 0x35, 0x77, 0xce, 0x39, 0xf7, 0xde, 0xb9, 0x67,
+	0x3c, 0xa8, 0x33, 0x60, 0x82, 0x32, 0xe1, 0x92, 0x4c, 0xee, 0x1d, 0xb8, 0xfb, 0x9b, 0x7d, 0x90,
+	0x64, 0x53, 0x47, 0x4e, 0xca, 0x99, 0x64, 0xb8, 0xa5, 0x19, 0x8e, 0xde, 0x2b, 0x19, 0x6b, 0xcb,
+	0x84, 0x46, 0x09, 0x73, 0xd5, 0x57, 0x13, 0xd7, 0x6e, 0x69, 0x62, 0xa0, 0x22, 0xb7, 0x54, 0x69,
+	0xa8, 0x1d, 0x32, 0x16, 0xc6, 0xe0, 0xaa, 0xa8, 0x9f, 0xbd, 0x73, 0x65, 0x44, 0x41, 0x48, 0x42,
+	0xd3, 0x92, 0xd0, 0x0a, 0x59, 0xc8, 0xb4, 0xb0, 0x58, 0x55, 0x19, 0x2f, 0xcb, 0x48, 0x92, 0x6b,
+	0xc8, 0x96, 0xa8, 0xb5, 0x0d, 0x09, 0xf0, 0x68, 0xe0, 0x65, 0x72, 0x8f, 0xf1, 0xe8, 0x80, 0xc8,
+	0x88, 0x25, 0xf8, 0x26, 0xaa, 0x53, 0x11, 0x9a, 0x46, 0xc7, 0x58, 0x6f, 0xfa, 0xc5, 0xf2, 0xf1,
+	0xf3, 0xcf, 0x47, 0x5d, 0x7b, 0xd6, 0x19, 0x9c, 0x29, 0xe5, 0x87, 0x5f, 0x9f, 0xee, 0xb5, 0x35,
+	0xad, 0x2b, 0x86, 0x23, 0x77, 0x56, 0x76, 0x7b, 0x62, 0xa0, 0xf9, 0x6d, 0x4e, 0x12, 0x89, 0xfb,
+	0x68, 0x89, 0x5c, 0x84, 0x54, 0xc5, 0xc5, 0xad, 0x96, 0xa3, 0x5b, 0x76, 0xaa, 0x96, 0x1d, 0x2f,
+	0xc9, 0x7b, 0x77, 0xaf, 0xd7, 0x82, 0x3f, 0x9d, 0x12, 0x3f, 0x45, 0x08, 0xc6, 0x69, 0xc4, 0x75,
+	0x81, 0x39, 0x55, 0x60, 0xed, 0x4a, 0x81, 0xdd, 0x6a, 0x94, 0xbd, 0xff, 0x8f, 0xbf, 0xb5, 0x8d,
+	0xc3, 0xef, 0x6d, 0xc3, 0xbf, 0xa0, 0xc3, 0x1b, 0x68, 0x9e, 0x67, 0x31, 0x08, 0xb3, 0xde, 0xa9,
+	0xab, 0x04, 0x33, 0x1b, 0xf1, 0xb3, 0x18, 0x7c, 0x4d, 0xb4, 0x37, 0x50, 0xa3, 0x08, 0x8b, 0x59,
+	0x8e, 0x20, 0xaf, 0x66, 0x39, 0x82, 0x1c, 0xaf, 0xa2, 0x85, 0x7d, 0x12, 0x67, 0x20, 0xcc, 0xb9,
+	0x4e, 0x7d, 0xbd, 0xe9, 0x97, 0x91, 0xfd, 0x71, 0x0e, 0x61, 0x35, 0x97, 0x69, 0x33, 0xb6, 0xd0,
+	0x7f, 0x61, 0xb1, 0x0b, 0x5c, 0x27, 0xe9, 0x99, 0x5f, 0x8e, 0xba, 0xd5, 0x7d, 0xf2, 0x86, 0x43,
+	0x0e, 0x42, 0xec, 0x48, 0x1e, 0x25, 0xa1, 0x5f, 0x11, 0xcf, 0x35, 0xa0, 0x4e, 0x7c, 0x0d, 0x0d,
+	0x5c, 0x35, 0xa3, 0xfe, 0xef, 0xcd, 0x78, 0x32, 0x65, 0x46, 0xe3, 0xaf, 0x66, 0x34, 0x2e, 0x1b,
+	0x61, 0x3f, 0x40, 0x37, 0xd4, 0x8c, 0x5e, 0x65, 0x90, 0xc1, 0x33, 0x09, 0x14, 0xdb, 0x68, 0x89,
+	0x8a, 0x30, 0x90, 0x79, 0x0a, 0x41, 0xc6, 0x63, 0x61, 0x1a, 0x6a, 0xaa, 0x8b, 0x54, 0x84, 0xbb,
+	0x79, 0x0a, 0xaf, 0x79, 0x2c, 0xec, 0x6d, 0xb4, 0xe2, 0xc5, 0x31, 0x7b, 0x0f, 0x43, 0x25, 0x2e,
+	0x8c, 0x11, 0x2f, 0x20, 0x17, 0xd8, 0x41, 0x8d, 0x11, 0xe4, 0x5a, 0xf3, 0x67, 0x5b, 0x15, 0xcf,
+	0x3e, 0x31, 0xd0, 0x92, 0x97, 0xa6, 0xc5, 0x21, 0x0f, 0x54, 0x16, 0xdc, 0x45, 0x98, 0xe8, 0xd4,
+	0x01, 0x87, 0x41, 0x94, 0x46, 0x90, 0xc8, 0xaa, 0x87, 0xe5, 0x12, 0xf1, 0xcf, 0x00, 0x7c, 0x1b,
+	0x21, 0x4a, 0xc6, 0x01, 0xa1, 0x2c, 0x4b, 0x64, 0x79, 0x01, 0x9a, 0x94, 0x8c, 0x3d, 0xb5, 0x81,
+	0x1f, 0x21, 0xb3, 0xca, 0x26, 0x24, 0x19, 0x41, 0xb0, 0x4f, 0xe2, 0x68, 0x48, 0x24, 0xe3, 0xfa,
+	0xea, 0x35, 0xfd, 0xd5, 0x12, 0xdf, 0x29, 0xe0, 0x37, 0x67, 0x28, 0x7e, 0x78, 0xae, 0x2c, 0x0a,
+	0x68, 0x75, 0x59, 0xa6, 0xa1, 0x94, 0x2b, 0x25, 0xfe, 0x92, 0x8c, 0x95, 0x58, 0x97, 0xec, 0xf5,
+	0x8e, 0x7f, 0x5a, 0xb5, 0xe3, 0x53, 0xcb, 0x38, 0x39, 0xb5, 0x8c, 0x1f, 0xa7, 0x96, 0x71, 0x38,
+	0xb1, 0x6a, 0x27, 0x13, 0xab, 0xf6, 0x75, 0x62, 0xd5, 0xde, 0xde, 0x09, 0x23, 0xb9, 0x97, 0xf5,
+	0x9d, 0x01, 0xa3, 0xe5, 0x6b, 0xe4, 0x5e, 0xf8, 0xbf, 0xc7, 0xfa, 0x91, 0xeb, 0x2f, 0x28, 0xef,
+	0xee, 0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x75, 0x91, 0xe4, 0x3a, 0x09, 0x05, 0x00, 0x00,
 }
 
 func (m *GenericAuthorization) Marshal() (dAtA []byte, err error) {
@@ -285,6 +419,20 @@ func (m *Grant) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Rules) > 0 {
+		for iNdEx := len(m.Rules) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rules[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAuthz(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	if m.Expiration != nil {
 		n1, err1 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(*m.Expiration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(*m.Expiration):])
 		if err1 != nil {
@@ -304,6 +452,45 @@ func (m *Grant) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i -= size
 			i = encodeVarintAuthz(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Rule) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Rule) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Rule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Values) > 0 {
+		for iNdEx := len(m.Values) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Values[iNdEx])
+			copy(dAtA[i:], m.Values[iNdEx])
+			i = encodeVarintAuthz(dAtA, i, uint64(len(m.Values[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Key) > 0 {
+		i -= len(m.Key)
+		copy(dAtA[i:], m.Key)
+		i = encodeVarintAuthz(dAtA, i, uint64(len(m.Key)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -401,6 +588,102 @@ func (m *GrantQueueItem) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *AllowedGrantRulesKeys) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AllowedGrantRulesKeys) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AllowedGrantRulesKeys) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Keys) > 0 {
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Keys[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintAuthz(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *AppAuthzRules) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AppAuthzRules) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AppAuthzRules) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AllowedMaxStakeAmount) > 0 {
+		for iNdEx := len(m.AllowedMaxStakeAmount) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.AllowedMaxStakeAmount[iNdEx])
+			copy(dAtA[i:], m.AllowedMaxStakeAmount[iNdEx])
+			i = encodeVarintAuthz(dAtA, i, uint64(len(m.AllowedMaxStakeAmount[iNdEx])))
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.AllowedStakeValidators) > 0 {
+		for iNdEx := len(m.AllowedStakeValidators) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.AllowedStakeValidators[iNdEx])
+			copy(dAtA[i:], m.AllowedStakeValidators[iNdEx])
+			i = encodeVarintAuthz(dAtA, i, uint64(len(m.AllowedStakeValidators[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.MaxAmount) > 0 {
+		for iNdEx := len(m.MaxAmount) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.MaxAmount[iNdEx])
+			copy(dAtA[i:], m.MaxAmount[iNdEx])
+			i = encodeVarintAuthz(dAtA, i, uint64(len(m.MaxAmount[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.AllowedRecipients) > 0 {
+		for iNdEx := len(m.AllowedRecipients) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.AllowedRecipients[iNdEx])
+			copy(dAtA[i:], m.AllowedRecipients[iNdEx])
+			i = encodeVarintAuthz(dAtA, i, uint64(len(m.AllowedRecipients[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintAuthz(dAtA []byte, offset int, v uint64) int {
 	offset -= sovAuthz(v)
 	base := offset
@@ -439,6 +722,31 @@ func (m *Grant) Size() (n int) {
 		l = github_com_cosmos_gogoproto_types.SizeOfStdTime(*m.Expiration)
 		n += 1 + l + sovAuthz(uint64(l))
 	}
+	if len(m.Rules) > 0 {
+		for _, e := range m.Rules {
+			l = e.Size()
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *Rule) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Key)
+	if l > 0 {
+		n += 1 + l + sovAuthz(uint64(l))
+	}
+	if len(m.Values) > 0 {
+		for _, s := range m.Values {
+			l = len(s)
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -475,6 +783,54 @@ func (m *GrantQueueItem) Size() (n int) {
 	_ = l
 	if len(m.MsgTypeUrls) > 0 {
 		for _, s := range m.MsgTypeUrls {
+			l = len(s)
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *AllowedGrantRulesKeys) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Keys) > 0 {
+		for _, e := range m.Keys {
+			l = e.Size()
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *AppAuthzRules) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.AllowedRecipients) > 0 {
+		for _, s := range m.AllowedRecipients {
+			l = len(s)
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	if len(m.MaxAmount) > 0 {
+		for _, s := range m.MaxAmount {
+			l = len(s)
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	if len(m.AllowedStakeValidators) > 0 {
+		for _, s := range m.AllowedStakeValidators {
+			l = len(s)
+			n += 1 + l + sovAuthz(uint64(l))
+		}
+	}
+	if len(m.AllowedMaxStakeAmount) > 0 {
+		for _, s := range m.AllowedMaxStakeAmount {
 			l = len(s)
 			n += 1 + l + sovAuthz(uint64(l))
 		}
@@ -670,6 +1026,154 @@ func (m *Grant) Unmarshal(dAtA []byte) error {
 			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(m.Expiration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Rules", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Rules = append(m.Rules, &Rule{})
+			if err := m.Rules[len(m.Rules)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAuthz(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Rule) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAuthz
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Rule: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Rule: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Key = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Values", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Values = append(m.Values, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -938,6 +1442,268 @@ func (m *GrantQueueItem) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.MsgTypeUrls = append(m.MsgTypeUrls, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAuthz(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AllowedGrantRulesKeys) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAuthz
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AllowedGrantRulesKeys: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AllowedGrantRulesKeys: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Keys", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Keys = append(m.Keys, &Rule{})
+			if err := m.Keys[len(m.Keys)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAuthz(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AppAuthzRules) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAuthz
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AppAuthzRules: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AppAuthzRules: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AllowedRecipients", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AllowedRecipients = append(m.AllowedRecipients, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MaxAmount = append(m.MaxAmount, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AllowedStakeValidators", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AllowedStakeValidators = append(m.AllowedStakeValidators, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AllowedMaxStakeAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuthz
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuthz
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AllowedMaxStakeAmount = append(m.AllowedMaxStakeAmount, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

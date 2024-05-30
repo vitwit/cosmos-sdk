@@ -68,7 +68,7 @@ func TestExpiredGrantsQueue(t *testing.T) {
 	authzKeeper := keeper.NewKeeper(storeService, encCfg.Codec, baseApp.MsgServiceRouter(), accountKeeper)
 
 	save := func(grantee sdk.AccAddress, exp *time.Time) {
-		err := authzKeeper.SaveGrant(ctx, grantee, granter, sendAuthz, exp)
+		err := authzKeeper.SaveGrant(ctx, grantee, granter, sendAuthz, exp, nil)
 		require.NoError(t, err, "Grant from %s", grantee.String())
 	}
 	save(grantee1, &expiration)

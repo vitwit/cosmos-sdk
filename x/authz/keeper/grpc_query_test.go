@@ -278,7 +278,7 @@ func (suite *TestSuite) createSendAuthorization(grantee, granter sdk.AccAddress)
 	exp := suite.ctx.BlockHeader().Time.Add(time.Hour)
 	newCoins := sdk.NewCoins(sdk.NewInt64Coin("steak", 100))
 	authorization := &banktypes.SendAuthorization{SpendLimit: newCoins}
-	err := suite.authzKeeper.SaveGrant(suite.ctx, grantee, granter, authorization, &exp)
+	err := suite.authzKeeper.SaveGrant(suite.ctx, grantee, granter, authorization, &exp, nil)
 	suite.Require().NoError(err)
 	return authorization
 }
@@ -287,7 +287,7 @@ func (suite *TestSuite) createSendAuthorizationWithAllowList(grantee, granter sd
 	exp := suite.ctx.BlockHeader().Time.Add(time.Hour)
 	newCoins := sdk.NewCoins(sdk.NewInt64Coin("steak", 100))
 	authorization := &banktypes.SendAuthorization{SpendLimit: newCoins, AllowList: []string{suite.addrs[5].String()}}
-	err := suite.authzKeeper.SaveGrant(suite.ctx, grantee, granter, authorization, &exp)
+	err := suite.authzKeeper.SaveGrant(suite.ctx, grantee, granter, authorization, &exp, nil)
 	suite.Require().NoError(err)
 	return authorization
 }

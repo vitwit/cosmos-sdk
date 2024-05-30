@@ -76,7 +76,7 @@ func (suite *GenesisTestSuite) TestImportExportGenesis() {
 	now := suite.ctx.BlockTime()
 	expires := now.Add(time.Hour)
 	grant := &bank.SendAuthorization{SpendLimit: coins}
-	err := suite.keeper.SaveGrant(suite.ctx, granteeAddr, granterAddr, grant, &expires)
+	err := suite.keeper.SaveGrant(suite.ctx, granteeAddr, granterAddr, grant, &expires, nil)
 	suite.Require().NoError(err)
 	genesis := suite.keeper.ExportGenesis(suite.ctx)
 
