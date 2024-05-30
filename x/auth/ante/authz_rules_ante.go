@@ -114,7 +114,7 @@ func (azd AuthzDecorator) handleStakeAuthzRules(ctx sdk.Context, msg *stakingv1b
 		return err
 	}
 
-	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&banktypes.MsgSend{}))
+	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&stakingv1beta1.MsgDelegate{}))
 
 	for _, rule := range rules {
 		if rule.Key == authztypes.AllowedStakeValidators {
