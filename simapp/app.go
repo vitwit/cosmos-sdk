@@ -1,4 +1,6 @@
-//go:build app_v1
+//go:build !app_v1
+
+// TODO: (revert) added for testing
 
 package simapp
 
@@ -572,6 +574,7 @@ func (app *SimApp) setAnteHandler(txConfig client.TxConfig) {
 				SignModeHandler: txConfig.SignModeHandler(),
 				FeegrantKeeper:  app.FeeGrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+				GovKeeper:       app.GovKeeper,
 			},
 			&app.CircuitKeeper,
 		},
