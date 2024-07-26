@@ -67,4 +67,5 @@ message AppAuthzRules {
   repeated string max_amount               = 2;
   repeated string allowed_stake_validators = 3;
   repeated string allowed_max_stake_amount = 4;
+  repeated string allowed_proposal_types   = 5;
 }

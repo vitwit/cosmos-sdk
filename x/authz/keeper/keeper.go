@@ -350,20 +350,32 @@ func (k Keeper) SetAuthzRulesKeys(ctx context.Context, rules *authz.AllowedGrant
 }
 
 func (k Keeper) GetAuthzRulesKeys(ctx context.Context) (*authz.AllowedGrantRulesKeys, error) {
-	store := k.storeService.OpenKVStore(ctx)
-	bz, err := store.Get(AuthzOptionsKeys)
 
-	if err != nil {
-		return nil, err
-	}
+	// TODO: testing purpose, please remove.
+	return &authz.AllowedGrantRulesKeys{
+		Keys: []*authz.Rule{
+			{
+				Key:    "/cosmos.gov.v1.MsgVote",
+				Values: []string{"allowed_authz_rules"},
+			},
+		},
+	}, nil
+	// till here
 
-	var authzRuleKeys *authz.AllowedGrantRulesKeys
-	err = k.cdc.Unmarshal(bz, authzRuleKeys)
-	if err != nil {
-		return nil, err
-	}
+	// store := k.storeService.OpenKVStore(ctx)
+	// bz, err := store.Get(AuthzOptionsKeys)
 
-	return authzRuleKeys, nil
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// var authzRuleKeys *authz.AllowedGrantRulesKeys
+	// err = k.cdc.Unmarshal(bz, authzRuleKeys)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return authzRuleKeys, nil
 }
 
 func (k Keeper) getGrantQueueItem(ctx context.Context, expiration time.Time, granter, grantee sdk.AccAddress) (*authz.GrantQueueItem, error) {

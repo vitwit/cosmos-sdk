@@ -3433,12 +3433,59 @@ func (x *_AppAuthzRules_4_list) IsValid() bool {
 	return x.list != nil
 }
 
+var _ protoreflect.List = (*_AppAuthzRules_5_list)(nil)
+
+type _AppAuthzRules_5_list struct {
+	list *[]string
+}
+
+func (x *_AppAuthzRules_5_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_AppAuthzRules_5_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_AppAuthzRules_5_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_AppAuthzRules_5_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_AppAuthzRules_5_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message AppAuthzRules at list field AllowedProposalTypes as it is not of Message kind"))
+}
+
+func (x *_AppAuthzRules_5_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_AppAuthzRules_5_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_AppAuthzRules_5_list) IsValid() bool {
+	return x.list != nil
+}
+
 var (
 	md_AppAuthzRules                          protoreflect.MessageDescriptor
 	fd_AppAuthzRules_allowed_recipients       protoreflect.FieldDescriptor
 	fd_AppAuthzRules_max_amount               protoreflect.FieldDescriptor
 	fd_AppAuthzRules_allowed_stake_validators protoreflect.FieldDescriptor
 	fd_AppAuthzRules_allowed_max_stake_amount protoreflect.FieldDescriptor
+	fd_AppAuthzRules_allowed_proposal_types   protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -3448,6 +3495,7 @@ func init() {
 	fd_AppAuthzRules_max_amount = md_AppAuthzRules.Fields().ByName("max_amount")
 	fd_AppAuthzRules_allowed_stake_validators = md_AppAuthzRules.Fields().ByName("allowed_stake_validators")
 	fd_AppAuthzRules_allowed_max_stake_amount = md_AppAuthzRules.Fields().ByName("allowed_max_stake_amount")
+	fd_AppAuthzRules_allowed_proposal_types = md_AppAuthzRules.Fields().ByName("allowed_proposal_types")
 }
 
 var _ protoreflect.Message = (*fastReflection_AppAuthzRules)(nil)
@@ -3539,6 +3587,12 @@ func (x *fastReflection_AppAuthzRules) Range(f func(protoreflect.FieldDescriptor
 			return
 		}
 	}
+	if len(x.AllowedProposalTypes) != 0 {
+		value := protoreflect.ValueOfList(&_AppAuthzRules_5_list{list: &x.AllowedProposalTypes})
+		if !f(fd_AppAuthzRules_allowed_proposal_types, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -3562,6 +3616,8 @@ func (x *fastReflection_AppAuthzRules) Has(fd protoreflect.FieldDescriptor) bool
 		return len(x.AllowedStakeValidators) != 0
 	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
 		return len(x.AllowedMaxStakeAmount) != 0
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		return len(x.AllowedProposalTypes) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3586,6 +3642,8 @@ func (x *fastReflection_AppAuthzRules) Clear(fd protoreflect.FieldDescriptor) {
 		x.AllowedStakeValidators = nil
 	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
 		x.AllowedMaxStakeAmount = nil
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		x.AllowedProposalTypes = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3626,6 +3684,12 @@ func (x *fastReflection_AppAuthzRules) Get(descriptor protoreflect.FieldDescript
 		}
 		listValue := &_AppAuthzRules_4_list{list: &x.AllowedMaxStakeAmount}
 		return protoreflect.ValueOfList(listValue)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		if len(x.AllowedProposalTypes) == 0 {
+			return protoreflect.ValueOfList(&_AppAuthzRules_5_list{})
+		}
+		listValue := &_AppAuthzRules_5_list{list: &x.AllowedProposalTypes}
+		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3662,6 +3726,10 @@ func (x *fastReflection_AppAuthzRules) Set(fd protoreflect.FieldDescriptor, valu
 		lv := value.List()
 		clv := lv.(*_AppAuthzRules_4_list)
 		x.AllowedMaxStakeAmount = *clv.list
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		lv := value.List()
+		clv := lv.(*_AppAuthzRules_5_list)
+		x.AllowedProposalTypes = *clv.list
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3706,6 +3774,12 @@ func (x *fastReflection_AppAuthzRules) Mutable(fd protoreflect.FieldDescriptor) 
 		}
 		value := &_AppAuthzRules_4_list{list: &x.AllowedMaxStakeAmount}
 		return protoreflect.ValueOfList(value)
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		if x.AllowedProposalTypes == nil {
+			x.AllowedProposalTypes = []string{}
+		}
+		value := &_AppAuthzRules_5_list{list: &x.AllowedProposalTypes}
+		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3731,6 +3805,9 @@ func (x *fastReflection_AppAuthzRules) NewField(fd protoreflect.FieldDescriptor)
 	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_max_stake_amount":
 		list := []string{}
 		return protoreflect.ValueOfList(&_AppAuthzRules_4_list{list: &list})
+	case "cosmos.authz.v1beta1.AppAuthzRules.allowed_proposal_types":
+		list := []string{}
+		return protoreflect.ValueOfList(&_AppAuthzRules_5_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: cosmos.authz.v1beta1.AppAuthzRules"))
@@ -3824,6 +3901,12 @@ func (x *fastReflection_AppAuthzRules) ProtoMethods() *protoiface.Methods {
 				n += 1 + l + runtime.Sov(uint64(l))
 			}
 		}
+		if len(x.AllowedProposalTypes) > 0 {
+			for _, s := range x.AllowedProposalTypes {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -3852,6 +3935,15 @@ func (x *fastReflection_AppAuthzRules) ProtoMethods() *protoiface.Methods {
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.AllowedProposalTypes) > 0 {
+			for iNdEx := len(x.AllowedProposalTypes) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.AllowedProposalTypes[iNdEx])
+				copy(dAtA[i:], x.AllowedProposalTypes[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.AllowedProposalTypes[iNdEx])))
+				i--
+				dAtA[i] = 0x2a
+			}
 		}
 		if len(x.AllowedMaxStakeAmount) > 0 {
 			for iNdEx := len(x.AllowedMaxStakeAmount) - 1; iNdEx >= 0; iNdEx-- {
@@ -4065,6 +4157,38 @@ func (x *fastReflection_AppAuthzRules) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
 				x.AllowedMaxStakeAmount = append(x.AllowedMaxStakeAmount, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			case 5:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AllowedProposalTypes", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.AllowedProposalTypes = append(x.AllowedProposalTypes, string(dAtA[iNdEx:postIndex]))
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -4399,6 +4523,7 @@ type AppAuthzRules struct {
 	MaxAmount              []string `protobuf:"bytes,2,rep,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
 	AllowedStakeValidators []string `protobuf:"bytes,3,rep,name=allowed_stake_validators,json=allowedStakeValidators,proto3" json:"allowed_stake_validators,omitempty"`
 	AllowedMaxStakeAmount  []string `protobuf:"bytes,4,rep,name=allowed_max_stake_amount,json=allowedMaxStakeAmount,proto3" json:"allowed_max_stake_amount,omitempty"`
+	AllowedProposalTypes   []string `protobuf:"bytes,5,rep,name=allowed_proposal_types,json=allowedProposalTypes,proto3" json:"allowed_proposal_types,omitempty"`
 }
 
 func (x *AppAuthzRules) Reset() {
@@ -4445,6 +4570,13 @@ func (x *AppAuthzRules) GetAllowedStakeValidators() []string {
 func (x *AppAuthzRules) GetAllowedMaxStakeAmount() []string {
 	if x != nil {
 		return x.AllowedMaxStakeAmount
+	}
+	return nil
+}
+
+func (x *AppAuthzRules) GetAllowedProposalTypes() []string {
+	if x != nil {
+		return x.AllowedProposalTypes
 	}
 	return nil
 }
@@ -4514,7 +4646,7 @@ var file_cosmos_authz_v1beta1_authz_proto_rawDesc = []byte{
 	0x74, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x4b, 0x65, 0x79, 0x73, 0x12, 0x2e, 0x0a, 0x04, 0x6b, 0x65,
 	0x79, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x52, 0x75, 0x6c, 0x65, 0x52, 0x04, 0x6b, 0x65, 0x79, 0x73, 0x22, 0xd0, 0x01, 0x0a, 0x0d, 0x41,
+	0x52, 0x75, 0x6c, 0x65, 0x52, 0x04, 0x6b, 0x65, 0x79, 0x73, 0x22, 0x86, 0x02, 0x0a, 0x0d, 0x41,
 	0x70, 0x70, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x12, 0x2d, 0x0a, 0x12,
 	0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f, 0x72, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e,
 	0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x11, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65,
@@ -4527,21 +4659,24 @@ var file_cosmos_authz_v1beta1_authz_proto_rawDesc = []byte{
 	0x74, 0x6f, 0x72, 0x73, 0x12, 0x37, 0x0a, 0x18, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f,
 	0x6d, 0x61, 0x78, 0x5f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x5f, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74,
 	0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x15, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x4d,
-	0x61, 0x78, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0xd0, 0x01,
-	0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x61, 0x75, 0x74,
-	0x68, 0x7a, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x41, 0x75, 0x74, 0x68,
-	0x7a, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2f, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b,
-	0x61, 0x75, 0x74, 0x68, 0x7a, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x43,
-	0x41, 0x58, 0xaa, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68,
-	0x7a, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xe2, 0x02, 0x20, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64,
-	0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x41, 0x75,
-	0x74, 0x68, 0x7a, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xc8, 0xe1, 0x1e, 0x00,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x78, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x34, 0x0a,
+	0x16, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x5f, 0x70, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61,
+	0x6c, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x09, 0x52, 0x14, 0x61,
+	0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x54, 0x79,
+	0x70, 0x65, 0x73, 0x42, 0xd0, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x42, 0x0a, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69,
+	0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x2f, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x61, 0x75, 0x74, 0x68, 0x7a, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x41, 0x58, 0xaa, 0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca,
+	0x02, 0x14, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5c,
+	0x41, 0x75, 0x74, 0x68, 0x7a, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50,
+	0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x43, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x3a, 0x3a, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0xc8, 0xe1, 0x1e, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

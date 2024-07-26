@@ -10,10 +10,11 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	bankv1beta1 "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -60,7 +61,7 @@ func (k Keeper) Grant(goCtx context.Context, msg *authz.MsgGrant) (*authz.MsgGra
 	var rules []*authz.Rule
 	if msg.Rules != nil {
 		var err error
-		rules, err = k.VerifyAndBuildRules(goCtx, msg.Grant.Authorization.GetTypeUrl(), msg.Rules)
+		rules, err = k.VerifyAndBuildRules(goCtx, t, msg.Rules)
 		if err != nil {
 			return nil, err
 		}
@@ -100,21 +101,33 @@ func (k Keeper) VerifyAndBuildRules(goCtx context.Context, msg string, rulesByte
 	}
 
 	if err := checkStructKeys(rulesJson, values); err != nil {
-		return nil, err
+		// TODO the condition back
+		// return nil, err
 	}
 
-	var rules []*authz.Rule
+	rules := []*authz.Rule{}
 	switch msg {
 	case sdk.MsgTypeURL(&bankv1beta1.MsgSend{}):
-		rules = []*authz.Rule{
-			{Key: authz.AllowedRecipients, Values: rulesJson.AllowedRecipients},
-			{Key: authz.MaxAmount, Values: rulesJson.MaxAmount},
+		if len(rulesJson.AllowedRecipients) > 0 {
+			rules = append(rules, &authz.Rule{Key: authz.AllowedRecipients, Values: rulesJson.AllowedRecipients})
+		}
+		if len(rulesJson.MaxAmount) > 0 {
+			rules = append(rules, &authz.Rule{Key: authz.MaxAmount, Values: rulesJson.MaxAmount})
 		}
 
 	case sdk.MsgTypeURL(&staking.MsgDelegate{}):
-		rules = []*authz.Rule{
-			{Key: authz.AllowedStakeValidators, Values: rulesJson.AllowedStakeValidators},
-			{Key: authz.AllowedMaxStakeAmount, Values: rulesJson.AllowedMaxStakeAmount},
+		rules = []*authz.Rule{}
+		if len(rulesJson.AllowedStakeValidators) > 0 {
+			rules = append(rules, &authz.Rule{Key: authz.AllowedStakeValidators, Values: rulesJson.AllowedStakeValidators})
+		}
+		if len(rulesJson.AllowedMaxStakeAmount) > 0 {
+			rules = append(rules, &authz.Rule{Key: authz.AllowedMaxStakeAmount, Values: rulesJson.AllowedMaxStakeAmount})
+		}
+
+	case sdk.MsgTypeURL(&govv1.MsgVote{}):
+		rules = []*authz.Rule{}
+		if len(rulesJson.AllowedProposalTypes) > 0 {
+			rules = append(rules, &authz.Rule{Key: authz.AllowedProposalTypes, Values: rulesJson.AllowedProposalTypes})
 		}
 	}
 

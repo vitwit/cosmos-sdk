@@ -54,18 +54,6 @@ func (q queryServer) Proposal(ctx context.Context, req *v1.QueryProposalRequest)
 	return &v1.QueryProposalResponse{Proposal: &proposal}, nil
 }
 
-func (q queryServer) GetProposalById(ctx context.Context, proposalId uint64) (*v1.Proposal, error) {
-	proposal, err := q.k.Proposals.Get(ctx, proposalId)
-	if err != nil {
-		if errors.IsOf(err, collections.ErrNotFound) {
-			return nil, status.Errorf(codes.NotFound, "proposal %d doesn't exist", proposalId)
-		}
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &proposal, err
-}
-
 // Proposals implements the Query/Proposals gRPC method
 func (q queryServer) Proposals(ctx context.Context, req *v1.QueryProposalsRequest) (*v1.QueryProposalsResponse, error) {
 	filteredProposals, pageRes, err := query.CollectionFilteredPaginate(ctx, q.k.Proposals, req.Pagination, func(key uint64, p v1.Proposal) (include bool, err error) {

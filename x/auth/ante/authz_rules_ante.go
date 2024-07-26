@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,9 +9,9 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingv1beta1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	govv1beta1 "cosmossdk.io/api/cosmos/gov/v1beta1"
-	stakingv1beta1 "cosmossdk.io/api/cosmos/staking/v1beta1"
 	errorsmod "cosmossdk.io/errors"
 )
 
@@ -20,10 +21,11 @@ type AuthzDecorator struct {
 	govKeeper GovKeeper
 }
 
-func NewAuthzDecorator(azk AuthzKeeper, ak AccountKeeper) AuthzDecorator {
+func NewAuthzDecorator(azk AuthzKeeper, ak AccountKeeper, govKeeper GovKeeper) AuthzDecorator {
 	return AuthzDecorator{
-		azk: azk,
-		ak:  ak,
+		azk:       azk,
+		ak:        ak,
+		govKeeper: govKeeper,
 	}
 }
 
@@ -61,19 +63,22 @@ func (azd AuthzDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 
 		// Handle each inner message based on its type
 		for _, innerMsg := range authzMsgs {
-			switch innerMsg := innerMsg.(type) {
+			switch innerMsg1 := innerMsg.(type) {
 			case *banktypes.MsgSend:
-				if err := azd.handleSendAuthzRules(ctx, innerMsg, grantee); err != nil {
+				if err := azd.handleSendAuthzRules(ctx, innerMsg1, grantee); err != nil {
 					return ctx, err
 				}
 			case *stakingv1beta1.MsgDelegate:
-				if err := azd.handleStakeAuthzRules(ctx, innerMsg, grantee); err != nil {
+				if err := azd.handleStakeAuthzRules(ctx, innerMsg1, grantee); err != nil {
 					return ctx, err
 				}
-			case *govv1beta1.MsgVote:
-				if err := azd.handleProposalAuthzRules(ctx, innerMsg, grantee); err != nil {
+			case *govv1.MsgVote:
+				if err := azd.handleProposalAuthzRules(ctx, innerMsg1, grantee); err != nil {
 					return ctx, err
 				}
+
+			default:
+				fmt.Printf("Unhandled inner message type: %T\n", innerMsg)
 			}
 		}
 	}
@@ -181,7 +186,7 @@ func (azd AuthzDecorator) handleStakeAuthzRules(ctx sdk.Context, msg *stakingv1b
 }
 
 // handleProposalAuthzRules checks if a MsgVote transaction is authorized based on the rules set by the granter.
-func (azd AuthzDecorator) handleProposalAuthzRules(ctx sdk.Context, msg *govv1beta1.MsgVote, grantee []byte) error {
+func (azd AuthzDecorator) handleProposalAuthzRules(ctx sdk.Context, msg *govv1.MsgVote, grantee []byte) error {
 	// Convert the voter's address to bytes
 	granter, err := azd.ak.AddressCodec().StringToBytes(msg.Voter)
 	if err != nil {
@@ -195,7 +200,10 @@ func (azd AuthzDecorator) handleProposalAuthzRules(ctx sdk.Context, msg *govv1be
 	}
 
 	// Retrieve authorization rules
-	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&govv1beta1.MsgVote{}))
+	_, rules := azd.azk.GetAuthzWithRules(ctx, grantee, granter, sdk.MsgTypeURL(&govv1.MsgVote{}))
+	if len(rules) == 0 {
+		return nil
+	}
 
 	// Initialize a map for quick lookup of allowed proposal types
 	allowedProposalTypes := make(map[string]struct{})
@@ -211,7 +219,7 @@ func (azd AuthzDecorator) handleProposalAuthzRules(ctx sdk.Context, msg *govv1be
 
 	// Check if any of the proposal messages' types are allowed
 	for _, msg := range proposal.GetMessages() {
-		if _, exists := allowedProposalTypes[msg.TypeUrl]; !exists {
+		if _, exists := allowedProposalTypes[msg.GetTypeUrl()]; exists {
 			return nil // Proposal type is allowed
 		}
 	}
