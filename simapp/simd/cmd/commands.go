@@ -1,19 +1,27 @@
 package cmd
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
+	"cosmossdk.io/simapp"
 	cmtcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/simapp"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 
+	availblobcli "github.com/PrathyushaLakkireddy/availblob1/client/cli"
+	"github.com/PrathyushaLakkireddy/availblob1/relayer"
+	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -25,13 +33,15 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/server/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	//"github.com/rollchains/tiablob/tiasync"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -51,18 +61,11 @@ func initCometBFTConfig() *cmtcfg.Config {
 func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
 
-	// CustomConfig defines an arbitrary custom config to extend app.toml.
-	// If you don't need it, you can remove it.
-	// If you wish to add fields that correspond to flags that aren't in the SDK server config,
-	// this custom config can as well help.
-	type CustomConfig struct {
-		CustomField string `mapstructure:"custom-field"`
-	}
-
 	type CustomAppConfig struct {
-		serverconfig.Config `mapstructure:",squash"`
+		serverconfig.Config
 
-		Custom CustomConfig `mapstructure:"custom"`
+		Avail *relayer.AvailConfig `mapstructure:"avail"`
+		//Tiasync *tiasync.TiasyncConfig `mapstructure:"tiasync"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -83,22 +86,13 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.MinGasPrices = "0stake"
 	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
 
-	// Now we set the custom config default values.
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
-		Custom: CustomConfig{
-			CustomField: "anything",
-		},
+		Avail:  &relayer.DefaultAvailConfig,
+		//Tiasync: &tiasync.DefaultTiasyncConfig,
 	}
 
-	// The default SDK app template is defined in serverconfig.DefaultConfigTemplate.
-	// We append the custom config template to the default one.
-	// And we set the default config to the custom app template.
-	customAppTemplate := serverconfig.DefaultConfigTemplate + `
-[custom]
-# That field will be parsed by server.InterceptConfigsPreRunHandler and held by viper.
-# Do not forget to add quotes around the value if it is a string.
-custom-field = "{{ .Custom.CustomField }}"`
+	customAppTemplate := serverconfig.DefaultConfigTemplate + relayer.DefaultConfigTemplate
 
 	return customAppTemplate, customAppConfig
 }
@@ -106,8 +100,8 @@ custom-field = "{{ .Custom.CustomField }}"`
 func initRootCmd(
 	rootCmd *cobra.Command,
 	txConfig client.TxConfig,
-	interfaceRegistry codectypes.InterfaceRegistry,
-	appCodec codec.Codec,
+	_ codectypes.InterfaceRegistry,
+	_ codec.Codec,
 	basicManager module.BasicManager,
 ) {
 	cfg := sdk.GetConfig()
@@ -115,14 +109,17 @@ func initRootCmd(
 
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
-		NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
+		//NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, simapp.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+
+	keysCmd := keys.Commands()
+	keysCmd.AddCommand(availblobcli.NewKeysCmd())
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -130,7 +127,101 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(),
+		keysCmd,
+		resetCommand(),
+	)
+}
+
+// Removes application.db and unprovenBlocks.db, expected to be used with "comet reset-state"
+func resetCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "reset-app",
+		Short: "Reset application database (test-only)",
+		Long:  "Reset application database delete application.db",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			appdb := filepath.Join(clientCtx.HomeDir, filepath.Join("data", "application.db"))
+
+			if err := os.RemoveAll(appdb); err != nil {
+				return fmt.Errorf("failed to remove %s", appdb)
+			}
+
+			storedb := filepath.Join(clientCtx.HomeDir, filepath.Join("data", "unprovenBlocks.db"))
+
+			if err := os.RemoveAll(storedb); err != nil {
+				return fmt.Errorf("failed to remove %s", storedb)
+			}
+
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+// add server commands, copied from SDK so that we can use server.StartCmdWithOptions to override PostSetup
+func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator types.AppCreator, appExport types.AppExporter, addStartFlags types.ModuleInitFlags) {
+	cometCmd := &cobra.Command{
+		Use:     "comet",
+		Aliases: []string{"cometbft", "tendermint"},
+		Short:   "CometBFT subcommands",
+	}
+
+	cometCmd.AddCommand(
+		server.ShowNodeIDCmd(),
+		server.ShowValidatorCmd(),
+		server.ShowAddressCmd(),
+		server.VersionCmd(),
+		cmtcmd.ResetAllCmd,
+		cmtcmd.ResetStateCmd,
+		server.BootstrapStateCmd(appCreator),
+	)
+
+	startCmd := server.StartCmdWithOptions(appCreator, defaultNodeHome, server.StartCmdOptions{
+		PostSetup: func(svrCtx *server.Context, clientCtx client.Context, ctx context.Context, g *errgroup.Group) error {
+			// go tiasync.TiasyncRoutine(svrCtx, clientCtx, app.CelestiaNamespace)
+
+			// TODO Start relayer here instead of in NewChainApp
+			// cannot access app here until v0.51
+
+			// latestProvenHeight, err := app.TiaBlobKeeper.GetProvenHeight(context.TODO())
+			// if err != nil {
+			// 	panic(err)
+			// }
+
+			// appInfo, err := app.Info(nil)
+			// if err != nil {
+			// 	panic(err)
+			// }
+
+			// app.TiaBlobRelayer = tiablobrelayer.NewRelayer(
+			// 	"https://rpc.celestia.strange.love:443", // Celestia RPC URL. TODO config var
+			// 	latestProvenHeight,
+			// 	uint64(appInfo.LastBlockHeight),
+			// 	3*time.Second, // query Celestia for new block proofs this often. TODO config var
+			// 	32,            // only flush at most this many block proofs in an injected tx per block proposal. TODO config var
+			// )
+
+			// // must be done after relayer is created
+			// app.TiaBlobKeeper.SetRelayer(app.TiaBlobRelayer)
+
+			// go app.TiaBlobRelayer.StartRelayer(ctx)
+
+			return nil
+
+		},
+	})
+	addStartFlags(startCmd)
+
+	rootCmd.AddCommand(
+		startCmd,
+		cometCmd,
+		server.ExportCmd(appExport, defaultNodeHome),
+		version.NewVersionCommand(),
+		server.NewRollbackCmd(appCreator, defaultNodeHome),
 	)
 }
 
@@ -202,6 +293,10 @@ func newApp(
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
+
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+	}
+
 	return simapp.NewSimApp(
 		logger, db, traceStore, true,
 		appOpts,
@@ -209,7 +304,6 @@ func newApp(
 	)
 }
 
-// appExport creates a new simapp (optionally at a given height) and exports state.
 func appExport(
 	logger log.Logger,
 	db dbm.DB,
@@ -220,11 +314,12 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
+	var chainApp *simapp.SimApp
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
-		return servertypes.ExportedApp{}, errors.New("application home not set")
+		return servertypes.ExportedApp{}, errors.New("application home is not set")
 	}
 
 	viperAppOpts, ok := appOpts.(*viper.Viper)
@@ -236,24 +331,27 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var simApp *simapp.SimApp
-	if height != -1 {
-		simApp = simapp.NewSimApp(logger, db, traceStore, false, appOpts)
+	chainApp = simapp.NewSimApp(
+		logger,
+		db,
+		traceStore,
+		height == -1,
+		appOpts,
+	)
 
-		if err := simApp.LoadHeight(height); err != nil {
+	if height != -1 {
+		if err := chainApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
-	} else {
-		simApp = simapp.NewSimApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return chainApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "simapp")
+	dir, err := os.MkdirTemp("", "simd")
 	if err != nil {
-		dir = simapp.DefaultNodeHome
+		panic("failed to create temp dir: " + err.Error())
 	}
 	defer os.RemoveAll(dir)
 
