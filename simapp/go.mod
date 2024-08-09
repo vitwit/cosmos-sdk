@@ -227,6 +227,7 @@ require (
 replace (
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	cosmossdk.io/x/upgrade => cosmossdk.io/x/upgrade v0.1.1 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
+	github.com/PrathyushaLakkireddy/availblob1 => ../../../availblob1
 	github.com/cosmos/cosmos-sdk => ../
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.18.0 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
 	github.com/prometheus/client_model => github.com/prometheus/client_model v0.6.0 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
@@ -239,7 +240,7 @@ replace (
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	github.com/PrathyushaLakkireddy/availblob1 => /home/vitwit/go/src/github.com/PrathyushaLakkireddy/availblob1
+	// github.com/PrathyushaLakkireddy/availblob1 => /home/vitwit/go/src/github.com/PrathyushaLakkireddy/availblob1
 
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc1
 	github.com/cosmos/ibc-go/v8 => github.com/cosmos/ibc-go/v8 v8.2.1
