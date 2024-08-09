@@ -114,10 +114,9 @@ import (
 	availblobkeeper "github.com/PrathyushaLakkireddy/availblob1/keeper"
 	availblobmodule "github.com/PrathyushaLakkireddy/availblob1/module"
 	availblobrelayer "github.com/PrathyushaLakkireddy/availblob1/relayer"
-
-	poa "github.com/strangelove-ventures/poa"
-	poakeeper "github.com/strangelove-ventures/poa/keeper"
-	poamodule "github.com/strangelove-ventures/poa/module"
+	// poa "github.com/strangelove-ventures/poa"
+	// poakeeper "github.com/strangelove-ventures/poa/keeper"
+	// poamodule "github.com/strangelove-ventures/poa/module"
 )
 
 const (
@@ -189,7 +188,7 @@ type SimApp struct {
 	AvailBlobKeeper  *availblobkeeper.Keeper
 	Availblobrelayer *availblobrelayer.Relayer
 
-	POAKeeper poakeeper.Keeper
+	// POAKeeper poakeeper.Keeper
 
 	// the module manager
 	ModuleManager      *module.Manager
@@ -282,7 +281,7 @@ func NewSimApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, circuittypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, poa.StoreKey, availblob1.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, availblob1.StoreKey,
 	)
 
 	// register streaming services
@@ -414,14 +413,14 @@ func NewSimApp(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Initialize the poa Keeper and and AppModule
-	app.POAKeeper = poakeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[poa.StoreKey]),
-		app.StakingKeeper,
-		app.SlashingKeeper,
-		app.BankKeeper,
-		logger,
-	)
+	// app.POAKeeper = poakeeper.NewKeeper(
+	// 	appCodec,
+	// 	runtime.NewKVStoreService(keys[poa.StoreKey]),
+	// 	app.StakingKeeper,
+	// 	app.SlashingKeeper,
+	// 	app.BankKeeper,
+	// 	logger,
+	// )
 
 	app.AvailBlobKeeper = availblobkeeper.NewKeeper(
 		appCodec,
@@ -484,7 +483,7 @@ func NewSimApp(
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		circuit.NewAppModule(appCodec, app.CircuitKeeper),
 		availblobmodule.NewAppModule(appCodec, app.AvailBlobKeeper),
-		poamodule.NewAppModule(appCodec, app.POAKeeper),
+		// poamodule.NewAppModule(appCodec, app.POAKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -517,7 +516,7 @@ func NewSimApp(
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		poa.ModuleName, // custom
+		// poa.ModuleName, // custom
 		stakingtypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
@@ -526,7 +525,7 @@ func NewSimApp(
 	app.ModuleManager.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
-		poa.ModuleName, // custom
+		// poa.ModuleName, // custom
 		stakingtypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
@@ -542,7 +541,7 @@ func NewSimApp(
 		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,
-		vestingtypes.ModuleName, consensusparamtypes.ModuleName, circuittypes.ModuleName, poa.ModuleName, availblob1.ModuleName,
+		vestingtypes.ModuleName, consensusparamtypes.ModuleName, circuittypes.ModuleName, availblob1.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
@@ -871,7 +870,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(govtypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 
-	paramsKeeper.Subspace(poa.ModuleName)
+	// paramsKeeper.Subspace(poa.ModuleName)
 
 	return paramsKeeper
 }
