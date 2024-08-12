@@ -33,7 +33,7 @@ require (
 )
 
 require (
-	github.com/vitwit/avail-da-module v0.0.0-20240812091358-e5ce3e43987a
+	github.com/vitwit/avail-da-module v0.0.0-20240812101733-de1e4e28d933
 	golang.org/x/sync v0.7.0
 )
 
@@ -249,4 +249,6 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	github.com/vitwit/avail-da-module => /home/vitwit/go/src/github.com/vitwit/avail-da-module
 )
