@@ -19,8 +19,6 @@ import (
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 
-	availblobcli "github.com/PrathyushaLakkireddy/availblob1/client/cli"
-	"github.com/PrathyushaLakkireddy/availblob1/relayer"
 	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -41,6 +39,8 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	availblobcli "github.com/vitwit/avail-da-module/client/cli"
+	"github.com/vitwit/avail-da-module/relayer"
 	//"github.com/rollchains/tiablob/tiasync"
 )
 

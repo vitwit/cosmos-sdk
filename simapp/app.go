@@ -35,6 +35,7 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/spf13/cast"
+	availblob1 "github.com/vitwit/avail-da-module"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -109,11 +110,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/PrathyushaLakkireddy/availblob1"
-
-	availblobkeeper "github.com/PrathyushaLakkireddy/availblob1/keeper"
-	availblobmodule "github.com/PrathyushaLakkireddy/availblob1/module"
-	availblobrelayer "github.com/PrathyushaLakkireddy/availblob1/relayer"
+	availblobkeeper "github.com/vitwit/avail-da-module/keeper"
+	availblobmodule "github.com/vitwit/avail-da-module/module"
+	availblobrelayer "github.com/vitwit/avail-da-module/relayer"
 )
 
 const (
@@ -649,7 +648,6 @@ func (app *SimApp) Name() string { return app.BaseApp.Name() }
 
 // PreBlocker application updates every pre block
 func (app *SimApp) PreBlocker(ctx sdk.Context, req *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
-	fmt.Println("req height in PRE........", req.Height)
 	err := app.AvailBlobKeeper.PreBlocker(ctx, req)
 	if err != nil {
 		return nil, err

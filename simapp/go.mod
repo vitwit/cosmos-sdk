@@ -33,16 +33,15 @@ require (
 )
 
 require (
-	github.com/PrathyushaLakkireddy/availblob1 v0.0.0-20240725103806-4280f8cc7eb9
-	github.com/strangelove-ventures/poa v0.50.2
+	github.com/vitwit/avail-da-module v0.0.0-20240725103806-4280f8cc7eb9
 	golang.org/x/sync v0.7.0
 )
 
 require (
-	cloud.google.com/go v0.112.0 // indirect
+	cloud.google.com/go v0.112.1 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
-	cloud.google.com/go/storage v1.36.0 // indirect
+	cloud.google.com/go/storage v1.38.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -114,7 +113,7 @@ require (
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
-	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
@@ -124,7 +123,7 @@ require (
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-getter v1.7.3 // indirect
+	github.com/hashicorp/go-getter v1.7.4 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-metrics v0.5.3 // indirect
@@ -188,11 +187,11 @@ require (
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.47.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
-	go.opentelemetry.io/otel v1.22.0 // indirect
-	go.opentelemetry.io/otel/metric v1.22.0 // indirect
-	go.opentelemetry.io/otel/trace v1.22.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
+	go.opentelemetry.io/otel v1.24.0 // indirect
+	go.opentelemetry.io/otel/metric v1.24.0 // indirect
+	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
@@ -202,7 +201,7 @@ require (
 	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/api v0.162.0 // indirect
+	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240709173604-40e1e62336c5 // indirect
@@ -227,7 +226,7 @@ require (
 replace (
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	cosmossdk.io/x/upgrade => cosmossdk.io/x/upgrade v0.1.1 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
-	github.com/cosmos/cosmos-sdk => ../
+	github.com/cosmos/cosmos-sdk => ../.
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.18.0 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
 	github.com/prometheus/client_model => github.com/prometheus/client_model v0.6.0 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
 	github.com/prometheus/common => github.com/prometheus/common v0.47.0 // Remove once cosmos-sdk fork has been updated to latest v0.50.6
@@ -238,8 +237,6 @@ replace (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-
-	github.com/PrathyushaLakkireddy/availblob1 => /home/vitwit/go/src/github.com/PrathyushaLakkireddy/availblob1
 
 	github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc1
 	github.com/cosmos/ibc-go/v8 => github.com/cosmos/ibc-go/v8 v8.2.1
@@ -253,5 +250,4 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-
 )
