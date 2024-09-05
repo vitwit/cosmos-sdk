@@ -428,12 +428,19 @@ func NewSimApp(
 
 	// must be done after relayer is created
 	app.AvailBlobKeeper.SetRelayer(app.Availblobrelayer)
+	voteExtensionHandler := availblobkeeper.NewVoteExtHandler(
+		logger,
+		app.AvailBlobKeeper,
+	)
 
 	// Proof-of-blob proposal handling
 	dph := baseapp.NewDefaultProposalHandler(bApp.Mempool(), bApp)
-	tiaBlobProposalHandler := availblobkeeper.NewProofOfBlobProposalHandler(app.AvailBlobKeeper, dph.PrepareProposalHandler(), dph.ProcessProposalHandler())
-	bApp.SetPrepareProposal(tiaBlobProposalHandler.PrepareProposal)
-	bApp.SetProcessProposal(tiaBlobProposalHandler.ProcessProposal)
+	availBlobProposalHandler := availblobkeeper.NewProofOfBlobProposalHandler(app.AvailBlobKeeper,
+		dph.PrepareProposalHandler(), dph.ProcessProposalHandler(), *voteExtensionHandler)
+	bApp.SetPrepareProposal(availBlobProposalHandler.PrepareProposal)
+	bApp.SetProcessProposal(availBlobProposalHandler.ProcessProposal)
+	bApp.SetExtendVoteHandler(voteExtensionHandler.ExtendVoteHandler())
+	bApp.SetVerifyVoteExtensionHandler(voteExtensionHandler.VerifyVoteExtensionHandler())
 
 	/****  Module Options ****/
 
