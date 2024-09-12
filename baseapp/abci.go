@@ -860,25 +860,25 @@ func (app *BaseApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (res *abci.Res
 		}
 	}()
 
-	// if app.optimisticExec.Initialized() {
-	// 	// check if the hash we got is the same as the one we are executing
-	// 	aborted := app.optimisticExec.AbortIfNeeded(req.Hash)
-	// 	// Wait for the OE to finish, regardless of whether it was aborted or not
-	// 	res, err = app.optimisticExec.WaitResult()
+	if app.optimisticExec.Initialized() {
+		// check if the hash we got is the same as the one we are executing
+		aborted := app.optimisticExec.AbortIfNeeded(req.Hash)
+		// Wait for the OE to finish, regardless of whether it was aborted or not
+		res, err = app.optimisticExec.WaitResult()
 
-	// 	// only return if we are not aborting
-	// 	if !aborted {
-	// 		if res != nil {
-	// 			res.AppHash = app.workingHash()
-	// 		}
+		// only return if we are not aborting
+		if !aborted {
+			if res != nil {
+				res.AppHash = app.workingHash()
+			}
 
-	// 		return res, err
-	// 	}
+			return res, err
+		}
 
-	// 	// if it was aborted, we need to reset the state
-	// 	app.finalizeBlockState = nil
-	// 	app.optimisticExec.Reset()
-	// }
+		// if it was aborted, we need to reset the state
+		app.finalizeBlockState = nil
+		app.optimisticExec.Reset()
+	}
 
 	// if no OE is running, just run the block (this is either a block replay or a OE that got aborted)
 	res, err = app.internalFinalizeBlock(context.Background(), req)
