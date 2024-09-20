@@ -113,6 +113,9 @@ import (
 	availblobkeeper "github.com/vitwit/avail-da-module/keeper"
 	availblobmodule "github.com/vitwit/avail-da-module/module"
 	availblobrelayer "github.com/vitwit/avail-da-module/relayer"
+	"github.com/vitwit/avail-da-module/relayer/avail"
+	availhttpclient "github.com/vitwit/avail-da-module/relayer/http"
+	availtypes "github.com/vitwit/avail-da-module/types"
 )
 
 const (
@@ -405,26 +408,31 @@ func NewSimApp(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-
-	app.AvailBlobKeeper = availblobkeeper.NewKeeper(
-		appCodec,
-		appOpts,
-		runtime.NewKVStoreService(keys[availblob1.StoreKey]),
-		app.UpgradeKeeper,
-		keys[availblob1.StoreKey],
-		publishToAvailBlockInterval,
-		AvailAppID,
-	)
+	httpClient := availhttpclient.NewHandler()
+	cfg := availtypes.AvailConfigFromAppOpts(appOpts)
+	availDAClient := avail.NewLightClient(cfg.LightClientURL, httpClient)
 
 	app.Availblobrelayer, err = availblobrelayer.NewRelayer(
 		logger,
 		appCodec,
-		appOpts,
+		cfg,
 		homePath,
+		availDAClient,
 	)
+
 	if err != nil {
 		panic(err)
 	}
+
+	app.AvailBlobKeeper = availblobkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(keys[availblob1.StoreKey]),
+		app.UpgradeKeeper,
+		keys[availblob1.StoreKey],
+		appOpts,
+		logger,
+		app.Availblobrelayer,
+	)
 
 	// must be done after relayer is created
 	app.AvailBlobKeeper.SetRelayer(app.Availblobrelayer)

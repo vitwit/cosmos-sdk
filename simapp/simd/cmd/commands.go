@@ -39,8 +39,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	availblobcli "github.com/vitwit/avail-da-module/client/cli"
-	"github.com/vitwit/avail-da-module/relayer"
+	availtypes "github.com/vitwit/avail-da-module/types"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -63,7 +62,7 @@ func initAppConfig() (string, interface{}) {
 	type CustomAppConfig struct {
 		serverconfig.Config
 
-		Avail *relayer.AvailConfig `mapstructure:"avail"`
+		Avail *availtypes.AvailConfiguration `mapstructure:"avail"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -86,10 +85,10 @@ func initAppConfig() (string, interface{}) {
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
-		Avail:  &relayer.DefaultAvailConfig,
+		Avail:  &availtypes.DefaultAvailConfig,
 	}
 
-	customAppTemplate := serverconfig.DefaultConfigTemplate + relayer.DefaultConfigTemplate
+	customAppTemplate := serverconfig.DefaultConfigTemplate + availtypes.DefaultConfigTemplate
 
 	return customAppTemplate, customAppConfig
 }
@@ -116,7 +115,6 @@ func initRootCmd(
 	AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	keysCmd := keys.Commands()
-	keysCmd.AddCommand(availblobcli.NewKeysCmd())
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
