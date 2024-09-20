@@ -119,15 +119,8 @@ import (
 )
 
 const (
-	appName      = "SimApp"
-	NodeDir      = ".simapp"
-	Bech32Prefix = "comsos"
-	// namespace identifier for this rollchain on Avail
-	// TODO: Change me
-	AvailAppID = 1
-
-	// publish blocks to avail every n rollchain blocks.
-	publishToAvailBlockInterval = 5 // smaller size == faster testing
+	appName = "SimApp"
+	NodeDir = ".simapp"
 )
 
 var (
@@ -416,7 +409,7 @@ func NewSimApp(
 		logger,
 		appCodec,
 		cfg,
-		homePath,
+		NodeDir,
 		availDAClient,
 	)
 
