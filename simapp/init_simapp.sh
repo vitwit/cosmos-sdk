@@ -3,8 +3,8 @@
 SIMD_BIN=${SIMD_BIN:=$(which simd 2>/dev/null)}
 ALICE_MNEMONIC="all soap kiwi cushion federal skirt tip shock exist tragic verify lunar shine rely torch please view future lizard garbage humble medal leisure mimic"
 BOB_MNEMONIC="remain then chuckle hockey protect sausage govern curve hobby aisle clinic decline rotate judge this sail broom debris minute buddy buffalo desk pizza invite"
-SAI_MNEMONIC="festival borrow upon ritual remind song execute chase toward fan neck subway canal throw nothing ticket frown leave thank become extend balcony strike fame"
-TEJA_MNEMONIC="claim infant gather cereal sentence general cheese float hero dwarf miracle oven tide virus question choice say relax similar rice surround deal smooth rival"
+TEST_MNEMONIC="festival borrow upon ritual remind song execute chase toward fan neck subway canal throw nothing ticket frown leave thank become extend balcony strike fame"
+TEST1_MNEMONIC="claim infant gather cereal sentence general cheese float hero dwarf miracle oven tide virus question choice say relax similar rice surround deal smooth rival"
 UNKNOWN_MNOMONIC="purpose clutch ill track skate syrup cost among piano elegant close chaos come quit orchard acquire plunge hockey swift tongue salt supreme sting night"
 DAEMON_HOME="/home/vitwit/.simapp"
 
@@ -17,8 +17,8 @@ $SIMD_BIN config set app api.enable true
 
 echo $ALICE_MNEMONIC | $SIMD_BIN keys add alice --recover
 echo $BOB_MNEMONIC | $SIMD_BIN keys add bob --recover
-echo $SAI_MNEMONIC | $SIMD_BIN keys add sai --recover
-echo $TEJA_MNEMONIC | $SIMD_BIN keys add teja --recover
+echo $TEST_MNEMONIC | $SIMD_BIN keys add test --recover
+echo $TEST1_MNEMONIC | $SIMD_BIN keys add test1 --recover
 echo $UNKNOWN_MNOMONIC | $SIMD_BIN keys add unknown --recover
 
 $SIMD_BIN init test --chain-id demo
