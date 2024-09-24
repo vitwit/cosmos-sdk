@@ -39,7 +39,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	availtypes "github.com/vitwit/avail-da-module/types"
+	cadatypes "github.com/vitwit/avail-da-module/types"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -62,7 +62,7 @@ func initAppConfig() (string, interface{}) {
 	type CustomAppConfig struct {
 		serverconfig.Config
 
-		Avail *availtypes.AvailConfiguration `mapstructure:"avail"`
+		Avail *cadatypes.AvailConfiguration `mapstructure:"avail"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -85,10 +85,10 @@ func initAppConfig() (string, interface{}) {
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
-		Avail:  &availtypes.DefaultAvailConfig,
+		Avail:  &cadatypes.DefaultAvailConfig,
 	}
 
-	customAppTemplate := serverconfig.DefaultConfigTemplate + availtypes.DefaultConfigTemplate
+	customAppTemplate := serverconfig.DefaultConfigTemplate + cadatypes.DefaultConfigTemplate
 
 	return customAppTemplate, customAppConfig
 }
