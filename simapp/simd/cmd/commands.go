@@ -39,7 +39,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	cadatypes "github.com/vitwit/avail-da-module/types"
+	cadatypes "github.com/vitwit/avail-da-module/x/cada/types"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.

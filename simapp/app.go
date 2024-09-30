@@ -35,7 +35,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/spf13/cast"
-	cadatypes "github.com/vitwit/avail-da-module/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -110,12 +109,12 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	cadakeeper "github.com/vitwit/avail-da-module/keeper"
-	cadamodule "github.com/vitwit/avail-da-module/module"
 	cadarelayer "github.com/vitwit/avail-da-module/relayer"
 	"github.com/vitwit/avail-da-module/relayer/avail"
 	availhttpclient "github.com/vitwit/avail-da-module/relayer/http"
-	availtypes "github.com/vitwit/avail-da-module/types"
+	cadakeeper "github.com/vitwit/avail-da-module/x/cada/keeper"
+	cadamodule "github.com/vitwit/avail-da-module/x/cada/module"
+	cadatypes "github.com/vitwit/avail-da-module/x/cada/types"
 )
 
 const (
@@ -402,7 +401,7 @@ func NewSimApp(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 	httpClient := availhttpclient.NewHandler()
-	cfg := availtypes.AvailConfigFromAppOpts(appOpts)
+	cfg := cadatypes.AvailConfigFromAppOpts(appOpts)
 	availDAClient := avail.NewLightClient(cfg.LightClientURL, httpClient)
 
 	app.Cadarelayer, err = cadarelayer.NewRelayer(
@@ -474,7 +473,7 @@ func NewSimApp(
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		circuit.NewAppModule(appCodec, app.CircuitKeeper),
-		cadamodule.NewAppModule(appCodec, app.CadaKeeper),
+		cadamodule.NewAppModule(appCodec, app.CadaKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,

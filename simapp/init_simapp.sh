@@ -24,8 +24,8 @@ echo $UNKNOWN_MNOMONIC | $SIMD_BIN keys add unknown --recover
 $SIMD_BIN init test --chain-id demo
 $SIMD_BIN genesis add-genesis-account alice 5000000000stake --keyring-backend test
 $SIMD_BIN genesis add-genesis-account bob 5000000000stake --keyring-backend test
-$SIMD_BIN genesis add-genesis-account sai 5000000000stake --keyring-backend test
-$SIMD_BIN genesis add-genesis-account teja 5000000000stake --keyring-backend test
+$SIMD_BIN genesis add-genesis-account test 5000000000stake --keyring-backend test
+$SIMD_BIN genesis add-genesis-account test1 5000000000stake --keyring-backend test
 $SIMD_BIN genesis add-genesis-account unknown 5000000000stake --keyring-backend test
 
 $SIMD_BIN genesis gentx alice 1000000stake --chain-id demo
