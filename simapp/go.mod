@@ -33,7 +33,7 @@ require (
 )
 
 require (
-	github.com/vitwit/avail-da-module v0.0.0-20240924060246-3bf14877053d
+	github.com/vitwit/avail-da-module v0.0.0-20241001083506-0f5b1681279a
 	golang.org/x/sync v0.7.0
 )
 
@@ -237,5 +237,3 @@ replace (
 replace cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.1.0
 
 replace cosmossdk.io/client/v2 => cosmossdk.io/client/v2 v2.0.0-beta.1.0.20240124105859-5ad1805d0e79
-
-replace github.com/vitwit/avail-da-module => /home/vitwit/avail-setup/avail-da-module
