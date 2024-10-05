@@ -14,7 +14,7 @@ import (
 // NewGrant returns new Grant. Expiration is optional and noop if null.
 // It returns an error if the expiration is before the current block time,
 // which is passed into the `blockTime` arg.
-func NewGrant(blockTime time.Time, a Authorization, expiration *time.Time) (Grant, error) {
+func NewGrant(blockTime time.Time, a Authorization, expiration *time.Time, rules []*Rule) (Grant, error) {
 	if expiration != nil && !expiration.After(blockTime) {
 		return Grant{}, errorsmod.Wrapf(ErrInvalidExpirationTime, "expiration must be after the current block time (%v), got %v", blockTime.Format(time.RFC3339), expiration.Format(time.RFC3339))
 	}
@@ -29,6 +29,7 @@ func NewGrant(blockTime time.Time, a Authorization, expiration *time.Time) (Gran
 	return Grant{
 		Expiration:    expiration,
 		Authorization: any,
+		Rules:         rules,
 	}, nil
 }
 

@@ -36,7 +36,7 @@ func TestNewGrant(t *testing.T) {
 	for _, tc := range tcs {
 		tc := tc
 		t.Run(tc.title, func(t *testing.T) {
-			_, err := NewGrant(tc.blockTime, tc.a, tc.expire)
+			_, err := NewGrant(tc.blockTime, tc.a, tc.expire, nil)
 			expecError(require.New(t), tc.err, err)
 		})
 	}

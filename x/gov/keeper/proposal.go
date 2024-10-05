@@ -9,6 +9,8 @@ import (
 
 	"cosmossdk.io/collections"
 	errorsmod "cosmossdk.io/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -267,4 +269,16 @@ func (keeper Keeper) ActivateVotingPeriod(ctx context.Context, proposal v1.Propo
 	}
 
 	return keeper.ActiveProposalsQueue.Set(ctx, collections.Join(*proposal.VotingEndTime, proposal.Id), proposal.Id)
+}
+
+func (keeper Keeper) GetProposalById(ctx context.Context, proposalId uint64) (*v1.Proposal, error) {
+	proposal, err := keeper.Proposals.Get(ctx, proposalId)
+	if err != nil {
+		if errorsmod.IsOf(err, collections.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "proposal %d doesn't exist", proposalId)
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &proposal, err
 }

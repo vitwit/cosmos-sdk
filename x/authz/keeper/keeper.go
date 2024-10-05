@@ -181,13 +181,13 @@ func (k Keeper) DispatchActions(ctx context.Context, grantee sdk.AccAddress, msg
 // SaveGrant method grants the provided authorization to the grantee on the granter's account
 // with the provided expiration time and insert authorization key into the grants queue. If there is an existing authorization grant for the
 // same `sdk.Msg` type, this grant overwrites that.
-func (k Keeper) SaveGrant(ctx context.Context, grantee, granter sdk.AccAddress, authorization authz.Authorization, expiration *time.Time) error {
+func (k Keeper) SaveGrant(ctx context.Context, grantee, granter sdk.AccAddress, authorization authz.Authorization, expiration *time.Time, rules []*authz.Rule) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	msgType := authorization.MsgTypeURL()
 	store := k.storeService.OpenKVStore(ctx)
 	skey := grantStoreKey(grantee, granter, msgType)
 
-	grant, err := authz.NewGrant(sdkCtx.BlockTime(), authorization, expiration)
+	grant, err := authz.NewGrant(sdkCtx.BlockTime(), authorization, expiration, rules)
 	if err != nil {
 		return err
 	}
@@ -302,6 +302,21 @@ func (k Keeper) GetAuthorization(ctx context.Context, grantee, granter sdk.AccAd
 	return auth, grant.Expiration
 }
 
+func (k Keeper) GetAuthzWithRules(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) (authz.Authorization, []*authz.Rule) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	grant, found := k.getGrant(ctx, grantStoreKey(grantee, granter, msgType))
+	if !found || (grant.Expiration != nil && grant.Expiration.Before(sdkCtx.BlockHeader().Time)) {
+		return nil, nil
+	}
+
+	authz, err := grant.GetAuthorization()
+	if err != nil {
+		return nil, nil
+	}
+
+	return authz, grant.Rules
+}
+
 // IterateGrants iterates over all authorization grants
 // This function should be used with caution because it can involve significant IO operations.
 // It should not be used in query or msg services without charging additional gas.
@@ -320,6 +335,47 @@ func (k Keeper) IterateGrants(ctx context.Context,
 			break
 		}
 	}
+}
+
+func (k Keeper) SetAuthzRulesKeys(ctx context.Context, rules *authz.AllowedGrantRulesKeys) error {
+	store := k.storeService.OpenKVStore(ctx)
+
+	bz, err := k.cdc.Marshal(rules)
+	if err != nil {
+		return err
+	}
+
+	err = store.Set(AuthzOptionsKeys, bz)
+	return err
+}
+
+func (k Keeper) GetAuthzRulesKeys(ctx context.Context) (*authz.AllowedGrantRulesKeys, error) {
+
+	// TODO: testing purpose, please remove.
+	return &authz.AllowedGrantRulesKeys{
+		Keys: []*authz.Rule{
+			{
+				Key:    "/cosmos.gov.v1.MsgVote",
+				Values: []string{"allowed_authz_rules"},
+			},
+		},
+	}, nil
+	// till here
+
+	// store := k.storeService.OpenKVStore(ctx)
+	// bz, err := store.Get(AuthzOptionsKeys)
+
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// var authzRuleKeys *authz.AllowedGrantRulesKeys
+	// err = k.cdc.Unmarshal(bz, authzRuleKeys)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return authzRuleKeys, nil
 }
 
 func (k Keeper) getGrantQueueItem(ctx context.Context, expiration time.Time, granter, grantee sdk.AccAddress) (*authz.GrantQueueItem, error) {

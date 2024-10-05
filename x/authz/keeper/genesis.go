@@ -28,7 +28,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *authz.GenesisState) {
 			panic("expected authorization")
 		}
 
-		err = k.SaveGrant(ctx, grantee, granter, a, entry.Expiration)
+		err = k.SaveGrant(ctx, grantee, granter, a, entry.Expiration, nil)
 		if err != nil {
 			panic(err)
 		}
