@@ -33,6 +33,10 @@ func NewMsgGrant(granter, grantee sdk.AccAddress, a Authorization, expiration *t
 	return m, nil
 }
 
+func (msg *MsgGrant) SetAuthzRules(rules []byte) {
+	msg.Rules = rules
+}
+
 // GetAuthorization returns the cache value from the MsgGrant.Authorization if present.
 func (msg *MsgGrant) GetAuthorization() (Authorization, error) {
 	return msg.Grant.GetAuthorization()

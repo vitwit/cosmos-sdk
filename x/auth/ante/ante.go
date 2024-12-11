@@ -14,12 +14,14 @@ import (
 // HandlerOptions are the options required for constructing a default SDK AnteHandler.
 type HandlerOptions struct {
 	AccountKeeper          AccountKeeper
+	AuthzKeeper            AuthzKeeper
 	BankKeeper             types.BankKeeper
 	ExtensionOptionChecker ExtensionOptionChecker
 	FeegrantKeeper         FeegrantKeeper
 	SignModeHandler        *txsigning.HandlerMap
 	SigGasConsumer         func(meter storetypes.GasMeter, sig signing.SignatureV2, params types.Params) error
 	TxFeeChecker           TxFeeChecker
+	GovKeeper              GovKeeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -46,6 +48,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		NewValidateMemoDecorator(options.AccountKeeper),
 		NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+		NewAuthzDecorator(options.AuthzKeeper, options.AccountKeeper, options.GovKeeper),
 		NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 		NewValidateSigCountDecorator(options.AccountKeeper),
 		NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),

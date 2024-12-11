@@ -101,7 +101,7 @@ func (s *TestSuite) TestKeeper() {
 	s.T().Log("verify save, get and delete")
 	sendAutz := &banktypes.SendAuthorization{SpendLimit: coins100}
 	expire := now.AddDate(1, 0, 0)
-	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire)
+	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire, nil)
 	require.NoError(err)
 
 	authorizations, err = s.authzKeeper.GetAuthorizations(ctx, granteeAddr, granterAddr)
@@ -116,7 +116,7 @@ func (s *TestSuite) TestKeeper() {
 	require.Len(authorizations, 0)
 
 	s.T().Log("verify granting same authorization overwrite existing authorization")
-	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire)
+	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire, nil)
 	require.NoError(err)
 
 	authorizations, err = s.authzKeeper.GetAuthorizations(ctx, granteeAddr, granterAddr)
@@ -124,7 +124,7 @@ func (s *TestSuite) TestKeeper() {
 	require.Len(authorizations, 1)
 
 	sendAutz = &banktypes.SendAuthorization{SpendLimit: coins1000}
-	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire)
+	err = s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAutz, &expire, nil)
 	require.NoError(err)
 	authorizations, err = s.authzKeeper.GetAuthorizations(ctx, granteeAddr, granterAddr)
 	require.NoError(err)
@@ -148,8 +148,8 @@ func (s *TestSuite) TestKeeperIter() {
 	e := ctx.BlockTime().AddDate(1, 0, 0)
 	sendAuthz := banktypes.NewSendAuthorization(coins100, nil)
 
-	s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAuthz, &e)
-	s.authzKeeper.SaveGrant(ctx, granteeAddr, granter2Addr, sendAuthz, &e)
+	s.authzKeeper.SaveGrant(ctx, granteeAddr, granterAddr, sendAuthz, &e, nil)
+	s.authzKeeper.SaveGrant(ctx, granteeAddr, granter2Addr, sendAuthz, &e, nil)
 
 	s.authzKeeper.IterateGrants(ctx, func(granter, grantee sdk.AccAddress, grant authz.Grant) bool {
 		s.Require().Equal(granteeAddr, grantee)
@@ -207,7 +207,7 @@ func (s *TestSuite) TestDispatchAction() {
 			"authorization expired",
 			func() sdk.Context {
 				e := now.AddDate(0, 0, 1)
-				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e)
+				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e, nil)
 				require.NoError(err)
 				return s.ctx.WithBlockTime(s.ctx.BlockTime().AddDate(0, 0, 2))
 			},
@@ -226,7 +226,7 @@ func (s *TestSuite) TestDispatchAction() {
 			"requested amount is more than spend limit",
 			func() sdk.Context {
 				e := now.AddDate(0, 1, 0)
-				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e)
+				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e, nil)
 				require.NoError(err)
 				return s.ctx
 			},
@@ -245,7 +245,7 @@ func (s *TestSuite) TestDispatchAction() {
 			"",
 			func() sdk.Context {
 				e := now.AddDate(0, 1, 0)
-				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e)
+				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e, nil)
 				require.NoError(err)
 				return s.ctx
 			},
@@ -271,7 +271,7 @@ func (s *TestSuite) TestDispatchAction() {
 			"",
 			func() sdk.Context {
 				e := now.AddDate(0, 1, 0)
-				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e)
+				err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, a, &e, nil)
 				require.NoError(err)
 				return s.ctx
 			},
@@ -321,7 +321,7 @@ func (s *TestSuite) TestDispatchedEvents() {
 	})
 
 	// grant authorization
-	err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, &banktypes.SendAuthorization{SpendLimit: coins10}, &expiration)
+	err := s.authzKeeper.SaveGrant(s.ctx, granteeAddr, granterAddr, &banktypes.SendAuthorization{SpendLimit: coins10}, &expiration, nil)
 	require.NoError(err)
 	authorizations, err := s.authzKeeper.GetAuthorizations(s.ctx, granteeAddr, granterAddr)
 	require.NoError(err)
@@ -363,18 +363,18 @@ func (s *TestSuite) TestDequeueAllGrantsQueue() {
 	a := banktypes.SendAuthorization{SpendLimit: coins100}
 
 	// create few authorizations
-	err := s.authzKeeper.SaveGrant(s.ctx, grantee, granter, &a, &exp)
+	err := s.authzKeeper.SaveGrant(s.ctx, grantee, granter, &a, &exp, nil)
 	require.NoError(err)
 
-	err = s.authzKeeper.SaveGrant(s.ctx, grantee1, granter, &a, &exp)
+	err = s.authzKeeper.SaveGrant(s.ctx, grantee1, granter, &a, &exp, nil)
 	require.NoError(err)
 
 	exp2 := exp.AddDate(0, 1, 0)
-	err = s.authzKeeper.SaveGrant(s.ctx, granter, grantee1, &a, &exp2)
+	err = s.authzKeeper.SaveGrant(s.ctx, granter, grantee1, &a, &exp2, nil)
 	require.NoError(err)
 
 	exp2 = exp.AddDate(2, 0, 0)
-	err = s.authzKeeper.SaveGrant(s.ctx, granter, grantee, &a, &exp2)
+	err = s.authzKeeper.SaveGrant(s.ctx, granter, grantee, &a, &exp2, nil)
 	require.NoError(err)
 
 	newCtx := s.ctx.WithBlockTime(exp.AddDate(1, 0, 0))
@@ -413,9 +413,9 @@ func (s *TestSuite) TestGetAuthorization() {
 	expired := start.Add(time.Duration(1) * time.Second)
 	notExpired := start.Add(time.Duration(5) * time.Hour)
 
-	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthMulti, nil), "creating grant 1->2")
-	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr3, genAuthSend, &expired), "creating grant 1->3")
-	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr4, sendAuth, &notExpired), "creating grant 1->4")
+	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthMulti, nil, nil), "creating grant 1->2")
+	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr3, genAuthSend, &expired, nil), "creating grant 1->3")
+	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr4, sendAuth, &notExpired, nil), "creating grant 1->4")
 	// Without access to private keeper methods, I don't know how to save a grant with an invalid authorization.
 	newCtx := s.ctx.WithBlockTime(start.Add(time.Duration(1) * time.Minute))
 
@@ -489,8 +489,8 @@ func (s *TestSuite) TestGetAuthorizations() {
 	start := s.ctx.BlockHeader().Time
 	expired := start.Add(time.Duration(1) * time.Second)
 
-	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthMulti, &expired), "creating multi send grant 1->2")
-	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthSend, &expired), "creating send grant 1->2")
+	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthMulti, &expired, nil), "creating multi send grant 1->2")
+	s.Require().NoError(s.authzKeeper.SaveGrant(s.ctx, addr1, addr2, genAuthSend, &expired, nil), "creating send grant 1->2")
 
 	authzs, err := s.authzKeeper.GetAuthorizations(s.ctx, addr1, addr2)
 	require.NoError(err)

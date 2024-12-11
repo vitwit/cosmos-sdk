@@ -1,4 +1,6 @@
-//go:build !app_v1
+//go:build app_v1
+
+// TODO: (revert) add for testing
 
 package simapp
 
@@ -89,6 +91,7 @@ type SimApp struct {
 }
 
 func init() {
+
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
