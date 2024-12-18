@@ -7,6 +7,7 @@ package testutil
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	stakingv1beta1 "cosmossdk.io/api/cosmos/staking/v1beta1"
 	address "cosmossdk.io/core/address"
@@ -96,6 +97,20 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAddress", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAddress), name)
 }
 
+// HasAccount mocks base method.
+func (m *MockAccountKeeper) HasAccount(ctx context.Context, addr types1.AccAddress) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HasAccount", ctx, addr)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// HasAccount indicates an expected call of HasAccount.
+func (mr *MockAccountKeeperMockRecorder) HasAccount(ctx, addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasAccount", reflect.TypeOf((*MockAccountKeeper)(nil).HasAccount), ctx, addr)
+}
+
 // SetModuleAccount mocks base method.
 func (m *MockAccountKeeper) SetModuleAccount(arg0 context.Context, arg1 types1.ModuleAccountI) {
 	m.ctrl.T.Helper()
@@ -146,11 +161,13 @@ func (mr *MockBankKeeperMockRecorder) BurnCoins(arg0, arg1, arg2 interface{}) *g
 }
 
 // DelegateCoinsFromAccountToModule mocks base method.
-func (m *MockBankKeeper) DelegateCoinsFromAccountToModule(ctx context.Context, senderAddr types1.AccAddress, recipientModule string, amt types1.Coins) error {
+func (m *MockBankKeeper) DelegateCoinsFromAccountToModule(ctx context.Context, senderAddr types1.AccAddress, recipientModule string, amt types1.Coins) (types1.Coins, types1.Coins, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DelegateCoinsFromAccountToModule", ctx, senderAddr, recipientModule, amt)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(types1.Coins)
+	ret1, _ := ret[1].(types1.Coins)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // DelegateCoinsFromAccountToModule indicates an expected call of DelegateCoinsFromAccountToModule.
@@ -777,4 +794,57 @@ func (m *MockConsensusKeeper) ValidatorPubKeyTypes(arg0 context.Context) ([]stri
 func (mr *MockConsensusKeeperMockRecorder) ValidatorPubKeyTypes(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidatorPubKeyTypes", reflect.TypeOf((*MockConsensusKeeper)(nil).ValidatorPubKeyTypes), arg0)
+}
+
+// MockVestingAccount is a mock of VestingAccount interface.
+type MockVestingAccount struct {
+	ctrl     *gomock.Controller
+	recorder *MockVestingAccountMockRecorder
+}
+
+// MockVestingAccountMockRecorder is the mock recorder for MockVestingAccount.
+type MockVestingAccountMockRecorder struct {
+	mock *MockVestingAccount
+}
+
+// NewMockVestingAccount creates a new mock instance.
+func NewMockVestingAccount(ctrl *gomock.Controller) *MockVestingAccount {
+	mock := &MockVestingAccount{ctrl: ctrl}
+	mock.recorder = &MockVestingAccountMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockVestingAccount) EXPECT() *MockVestingAccountMockRecorder {
+	return m.recorder
+}
+
+// TrackDelegation mocks base method.
+func (m *MockVestingAccount) TrackDelegation(blockTime time.Time, balance, amount types1.Coins) (types1.Coins, types1.Coins) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TrackDelegation", blockTime, balance, amount)
+	ret0, _ := ret[0].(types1.Coins)
+	ret1, _ := ret[1].(types1.Coins)
+	return ret0, ret1
+}
+
+// TrackDelegation indicates an expected call of TrackDelegation.
+func (mr *MockVestingAccountMockRecorder) TrackDelegation(blockTime, balance, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackDelegation", reflect.TypeOf((*MockVestingAccount)(nil).TrackDelegation), blockTime, balance, amount)
+}
+
+// TrackUndelegation mocks base method.
+func (m *MockVestingAccount) TrackUndelegation(amount types1.Coins) (types1.Coins, types1.Coins) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TrackUndelegation", amount)
+	ret0, _ := ret[0].(types1.Coins)
+	ret1, _ := ret[1].(types1.Coins)
+	return ret0, ret1
+}
+
+// TrackUndelegation indicates an expected call of TrackUndelegation.
+func (mr *MockVestingAccountMockRecorder) TrackUndelegation(amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUndelegation", reflect.TypeOf((*MockVestingAccount)(nil).TrackUndelegation), amount)
 }

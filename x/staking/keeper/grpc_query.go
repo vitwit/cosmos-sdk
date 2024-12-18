@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"google.golang.org/grpc/codes"
@@ -81,6 +82,7 @@ func (k Querier) Validators(ctx context.Context, req *types.QueryValidatorsReque
 		validatorInfoList = append(validatorInfoList, valInfo)
 	}
 
+	fmt.Printf("vals.Validators: %+v\n", vals.Validators)
 	return &types.QueryValidatorsResponse{
 		Validators:    vals.Validators,
 		ValidatorInfo: validatorInfoList,

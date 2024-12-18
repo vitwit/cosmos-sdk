@@ -71,9 +71,10 @@ func (x BondStatus) String() string {
 
 // DelegationI delegation bond for a delegated proof of stake system
 type DelegationI interface {
-	GetDelegatorAddr() string  // delegator string for the bond
-	GetValidatorAddr() string  // validator operator address
-	GetShares() math.LegacyDec // amount of validator's shares held in this delegation
+	GetDelegatorAddr() string           // delegator string for the bond
+	GetValidatorAddr() string           // validator operator address
+	GetShares() math.LegacyDec          // amount of validator's shares held in this delegation
+	GetEffectiveShares() math.LegacyDec // amount of validator's shares held in this delegation
 }
 
 // ValidatorI expected validator functions

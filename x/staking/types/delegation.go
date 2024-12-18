@@ -55,6 +55,8 @@ func (d Delegation) GetValidatorAddr() string {
 }
 func (d Delegation) GetShares() math.LegacyDec { return d.Shares }
 
+func (d Delegation) GetEffectiveShares() math.LegacyDec { return d.EffectiveShares }
+
 // Delegations is a collection of delegations
 type Delegations []Delegation
 

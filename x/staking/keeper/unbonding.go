@@ -298,6 +298,7 @@ func (k Keeper) unbondingDelegationEntryCanComplete(ctx context.Context, id uint
 		// track undelegation only when remaining or truncated shares are non-zero
 		if !ubd.Entries[i].Balance.IsZero() {
 			amt := sdk.NewCoin(bondDenom, ubd.Entries[i].Balance)
+
 			if err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(
 				ctx, types.NotBondedPoolName, delegatorAddress, sdk.NewCoins(amt),
 			); err != nil {

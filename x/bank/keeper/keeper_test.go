@@ -435,8 +435,8 @@ func (suite *KeeperTestSuite) TestSupply_DelegateUndelegateCoins() {
 	require.Equal(initCoins, keeper.GetAllBalances(ctx, baseAcc.GetAddress()))
 
 	suite.mockDelegateCoinsFromAccountToModule(baseAcc, burnerAcc)
-
 	require.NoError(keeper.DelegateCoinsFromAccountToModule(ctx, baseAcc.GetAddress(), authtypes.Burner, initCoins))
+
 	require.Equal(sdk.NewCoins(), keeper.GetAllBalances(ctx, baseAcc.GetAddress()))
 	require.Equal(initCoins, keeper.GetAllBalances(ctx, burnerAcc.GetAddress()))
 

@@ -135,6 +135,13 @@ message Validator {
 
   // list of unbonding ids, each uniquely identifying an unbonding of this validator
   repeated uint64 unbonding_ids = 13;
+
+  // effective_delegator_shares defines total effective shares issued to a validator's delegators.
+  string effective_delegator_shares = 14 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
+  ];
 }
 
 // BondStatus is the status of a validator.
@@ -203,6 +210,12 @@ message Delegation {
   string validator_address = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
   // shares define the delegation shares received.
   string shares = 3 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
+  ];
+  // effective_shares defines total effective shares issued to a validator's delegators.
+  string effective_shares = 4 [
     (cosmos_proto.scalar)  = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable)   = false

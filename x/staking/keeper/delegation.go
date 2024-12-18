@@ -713,6 +713,20 @@ func (k Keeper) Delegate(
 	if err != nil {
 		return math.LegacyZeroDec(), err
 	}
+	bondDenom, err := k.BondDenom(ctx)
+	if err != nil {
+		return math.LegacyDec{}, err
+	}
+
+	delVest, delNonVest := sdk.NewCoins(), sdk.NewCoins(sdk.NewCoin(bondDenom, bondAmt))
+
+	coins := sdk.NewCoins(sdk.NewCoin(bondDenom, bondAmt))
+	acc := k.authKeeper.GetAccount(ctx, delAddr)
+	if acc == nil {
+		return math.LegacyZeroDec(), errorsmod.Wrapf(sdkerrors.ErrUnknownAddress, "account %s does not exist", delAddr)
+	}
+
+	vacc, isVestingAccount := acc.(types.VestingAccount)
 
 	// if subtractAccount is true then we are
 	// performing a delegation and not a redelegation, thus the source tokens are
@@ -733,13 +747,14 @@ func (k Keeper) Delegate(
 			return math.LegacyZeroDec(), fmt.Errorf("invalid validator status: %v", validator.Status)
 		}
 
-		bondDenom, err := k.BondDenom(ctx)
-		if err != nil {
-			return math.LegacyDec{}, err
+		balances := k.bankKeeper.GetAllBalances(ctx, delAddr)
+
+		if isVestingAccount {
+			delVest, delNonVest = vacc.TrackDelegation(k.HeaderService.HeaderInfo(ctx).Time, balances, coins)
 		}
 
-		coins := sdk.NewCoins(sdk.NewCoin(bondDenom, bondAmt))
-		if err := k.bankKeeper.DelegateCoinsFromAccountToModule(ctx, delAddr, sendName, coins); err != nil {
+		err = k.bankKeeper.DelegateCoinsFromAccountToModule(ctx, delAddr, sendName, coins)
+		if err != nil {
 			return math.LegacyDec{}, err
 		}
 	} else {
@@ -764,15 +779,43 @@ func (k Keeper) Delegate(
 		default:
 			return math.LegacyZeroDec(), fmt.Errorf("unknown token source bond status: %v", tokenSrc)
 		}
+
+		// in case of redelegation we need to track how many vesting, non-vesting tokens are moving to
+		// another validator, they're needed in calculating effective delegation shares.
+		if isVestingAccount {
+			delVest, delNonVest = vacc.TrackUndelegation(coins)
+		}
 	}
 
-	_, newShares, err = k.AddValidatorTokensAndShares(ctx, validator, bondAmt)
+	validator, newShares, err = k.AddValidatorTokensAndShares(ctx, validator, bondAmt)
 	if err != nil {
-		return newShares, err
+		return math.LegacyDec{}, err
+	}
+
+	effectiveDelegatorShares, err := k.calculateEffectiveDelegationShares(delVest, delNonVest, validator)
+	if err != nil {
+		return math.LegacyDec{}, err
+	}
+
+	if validator.EffectiveDelegatorShares.IsNil() {
+		validator.EffectiveDelegatorShares = effectiveDelegatorShares
+	} else {
+		validator.EffectiveDelegatorShares = validator.EffectiveDelegatorShares.Add(effectiveDelegatorShares)
+	}
+
+	if err = k.SetValidator(ctx, validator); err != nil {
+		return math.LegacyDec{}, err
 	}
 
 	// Update delegation
 	delegation.Shares = delegation.Shares.Add(newShares)
+
+	if delegation.EffectiveShares.IsNil() {
+		delegation.EffectiveShares = effectiveDelegatorShares
+	} else {
+		delegation.EffectiveShares = delegation.EffectiveShares.Add(effectiveDelegatorShares)
+	}
+
 	if err = k.SetDelegation(ctx, delegation); err != nil {
 		return newShares, err
 	}
@@ -783,6 +826,35 @@ func (k Keeper) Delegate(
 	}
 
 	return newShares, nil
+}
+
+// calculateEffectiveDelegationShares calculates the effective delegation shares
+// If the account is vesting, it multiplies the delegated shares by param vestingRewardMultiplier
+func (k Keeper) calculateEffectiveDelegationShares(
+	delegatedVesting, delegatedFree sdk.Coins, validator types.Validator,
+) (shares math.LegacyDec, err error) {
+
+	// TODO: make defaultVRM as a param
+	defaultVRM := math.LegacyNewDecWithPrec(3, 1)
+	effectiveShares := math.LegacyZeroDec()
+
+	if len(delegatedFree) > 0 {
+		nonVestingShares, err := validator.SharesFromTokens(delegatedFree[0].Amount)
+		if err != nil {
+			return math.LegacyZeroDec(), err
+		}
+		effectiveShares = effectiveShares.Add(nonVestingShares)
+	}
+
+	if len(delegatedVesting) > 0 {
+		vestingShares, err := validator.SharesFromTokens(delegatedVesting[0].Amount)
+		if err != nil {
+			return math.LegacyZeroDec(), err
+		}
+		effectiveShares = effectiveShares.Add(vestingShares.Mul(defaultVRM))
+	}
+
+	return effectiveShares, nil
 }
 
 // Unbond unbonds a particular delegation and perform associated store operations.
@@ -813,13 +885,41 @@ func (k Keeper) Unbond(
 		return amount, err
 	}
 
+	unbondAmt := validator.TokensFromShares(shares)
+
 	// subtract shares from delegation
 	delegation.Shares = delegation.Shares.Sub(shares)
+	effectiveDelegatorShares := shares
 
 	delegatorAddress, err := k.authKeeper.AddressCodec().StringToBytes(delegation.DelegatorAddress)
 	if err != nil {
 		return amount, err
 	}
+
+	bondDenom, err := k.BondDenom(ctx)
+	if err != nil {
+		return amount, err
+	}
+
+	acc := k.authKeeper.GetAccount(ctx, delegatorAddress)
+	if acc == nil {
+		return amount, errorsmod.Wrapf(sdkerrors.ErrUnknownAddress, "account %s does not exist", delAddr)
+	}
+
+	vacc, ok := acc.(types.VestingAccount)
+	if ok {
+		vest, nonVest := vacc.TrackUndelegation(sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmt.TruncateInt())))
+
+		effectiveDelegatorShares, err = k.calculateEffectiveDelegationShares(vest, nonVest, validator)
+		if err != nil {
+			return amount, err
+		}
+	}
+
+	// safesub
+	validator.EffectiveDelegatorShares = validator.EffectiveDelegatorShares.Sub(effectiveDelegatorShares)
+	// safesub
+	delegation.EffectiveShares = delegation.EffectiveShares.Sub(effectiveDelegatorShares)
 
 	valbz, err := k.ValidatorAddressCodec().StringToBytes(validator.GetOperator())
 	if err != nil {
@@ -1006,9 +1106,7 @@ func (k Keeper) CompleteUnbonding(ctx context.Context, delAddr sdk.AccAddress, v
 			// track undelegation only when remaining or truncated shares are non-zero
 			if !entry.Balance.IsZero() {
 				amt := sdk.NewCoin(bondDenom, entry.Balance)
-				if err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(
-					ctx, types.NotBondedPoolName, delegatorAddress, sdk.NewCoins(amt),
-				); err != nil {
+				if err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.NotBondedPoolName, delegatorAddress, sdk.NewCoins(amt)); err != nil {
 					return nil, err
 				}
 
